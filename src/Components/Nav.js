@@ -44,6 +44,7 @@ class Nav extends Component {
         //console.log('Dans mon fetch: Get Projects-->', data);
         this.setState({ projects: data.project });
       });
+    document.getElementById('myTasks').click();
   }
 
   render() {
@@ -113,7 +114,7 @@ class Nav extends Component {
               <div className='logo' />
               <Menu theme='dark' defaultSelectedKeys={['1']} mode='inline'>
                 <Menu.Item key='1'>
-                  <Link to={linkUserLogged}>
+                  <Link id='myTasks' to={linkUserLogged}>
                     <Icon type='desktop' />
                     <span>My tasks</span>
                   </Link>
@@ -179,7 +180,7 @@ class Nav extends Component {
 }
 
 function mapStateToProps(state) {
-  console.log('je recois de mon reducer : ', state.appli);
+  console.log('Nav reducer : ', state.appli);
 
   return { appliFromStore: state.appli };
 }
