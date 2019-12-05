@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 
 import List from './List';
 import Calendar from './MyCalendar';
-import Conversation from './Conversation';
+import Conversations from './Conversations';
 import Progress from './Progress';
 
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
@@ -37,12 +37,14 @@ class Nav extends Component {
       .then(data => {
         //console.log('Dans mon fetch: Get Users-->', data);
         this.setState({ users: data.user });
+        this.props.saveusers(data.user);
       });
     fetch(`http://localhost:3000/projects/`)
       .then(response => response.json())
       .then(data => {
         //console.log('Dans mon fetch: Get Projects-->', data);
         this.setState({ projects: data.project });
+        this.props.saveprojects(data.project);
       });
     document.getElementById('myTasks').click();
   }
@@ -84,7 +86,15 @@ class Nav extends Component {
       <Router basename='/'>
         <Layout>
           <Header className='header'>
-            <div className='logo' />
+            <div className='logo'>
+              <img
+                src='/images/PeeM_Logo.png'
+                alt='Logo'
+                width='30'
+                height='30'
+              />
+            </div>
+
             <Menu
               theme='dark'
               mode='horizontal'
@@ -92,17 +102,38 @@ class Nav extends Component {
               style={{ lineHeight: '64px' }}
             >
               <Menu.Item key='1'>
-                <Link to='/HomePage/List'>List</Link>
+                <Link to='/HomePage/List'>
+                  <Icon type='unordered-list' />
+                  <span>List</span>
+                </Link>
               </Menu.Item>
               <Menu.Item key='2'>
-                <Link to='/HomePage/Calendar'>Calendar</Link>
+                <Link to='/HomePage/Calendar'>
+                  <Icon type='calendar' />
+                  <span>Calendar</span>
+                </Link>
               </Menu.Item>
               <Menu.Item key='3'>
-                <Link to='/HomePage/Conversation'>Conversation</Link>
+                <Link to='/HomePage/Conversation'>
+                  <Icon type='message' />
+                  <span>Conversation</span>
+                </Link>
               </Menu.Item>
               <Menu.Item key='4'>
-                <Link to='/HomePage/Progress'>Progress</Link>
+                <Link to='/HomePage/Progress'>
+                  <Icon type='area-chart' />
+                  <span>Progress</span>
+                </Link>
               </Menu.Item>
+              <SubMenu
+                key='5'
+                title={<Icon type='plus-circle' style={{ fontSize: '18px' }} />}
+              >
+                <Menu.Item key='6'>Project</Menu.Item>
+                <Menu.Item key='7'>Task</Menu.Item>
+                <Menu.Item key='8'>Conversation</Menu.Item>
+                <Menu.Item key='9'>Status</Menu.Item>
+              </SubMenu>
             </Menu>
           </Header>
           <Layout style={{ minHeight: '100vh' }}>
@@ -115,7 +146,7 @@ class Nav extends Component {
               <Menu theme='dark' defaultSelectedKeys={['1']} mode='inline'>
                 <Menu.Item key='1'>
                   <Link id='myTasks' to={linkUserLogged}>
-                    <Icon type='desktop' />
+                    <Icon type='dashboard' />
                     <span>My tasks</span>
                   </Link>
                 </Menu.Item>
@@ -123,7 +154,7 @@ class Nav extends Component {
                   key='sub1'
                   title={
                     <span>
-                      <Icon type='team' />
+                      <Icon type='project' />
                       <span>Project</span>
                     </span>
                   }
@@ -163,7 +194,7 @@ class Nav extends Component {
                   <Route path='/HomePage/Calendar' component={Calendar} />
                   <Route
                     path='/HomePage/Conversation'
-                    component={Conversation}
+                    component={Conversations}
                   />
                   <Route path='/HomePage/Progress' component={Progress} />
                 </Switch>
@@ -179,10 +210,23 @@ class Nav extends Component {
   }
 }
 
+function mapDispatchToProps(dispatch) {
+  return {
+    saveusers: function(users) {
+      console.log('Nav - mapDispatchToProps - Users', users);
+      dispatch({ type: 'saveusers', users });
+    },
+    saveprojects: function(projects) {
+      console.log('Nav - mapDispatchToProps - Projects', projects);
+      dispatch({ type: 'saveprojects', projects });
+    }
+  };
+}
+
 function mapStateToProps(state) {
   console.log('Nav reducer : ', state.appli);
 
   return { appliFromStore: state.appli };
 }
 
-export default connect(mapStateToProps, null)(Nav);
+export default connect(mapStateToProps, mapDispatchToProps)(Nav);

@@ -20,12 +20,7 @@ const labelFormat = {
     return text.replace(/(\d)(?=(?:\d{3})+$)/g, '$1,');
   }
 };
-/*
-const formatDate = date => {
-  var dt = new Date(date);
-  return dt.getDate() + '/' + dt.getMonth() + '/' + dt.getFullYear();
-};
-*/
+
 class Progress extends Component {
   constructor() {
     super();
