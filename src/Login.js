@@ -28,7 +28,7 @@ class Login extends Component {
     fetch(`http://localhost:3000/users/sign-up`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: `first_name=${this.state.SignUpFirstName}&last_name=${this.state.SignUpFirstName}&email=${this.state.SignUpEmail}&password=${this.state.SignUpPassword}`
+      body: `firstname=${this.state.SignUpFirstName}&lastname=${this.state.SignUpLastName}&email=${this.state.SignUpEmail}&password=${this.state.SignUpPassword}`
     })
       .then(function(res, err) {
         return res.json();

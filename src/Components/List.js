@@ -165,8 +165,16 @@ class List extends Component {
       'List - componentDidMount: props de ma page List --> ',
       this.props.match.params
     );
+    var iduser = this.props.match.params.iduser;
+    var idproject = this.props.match.params.idproject;
+    var url;
+    if (idproject !== '0')
+      url = `http://localhost:3000/workspace/${idproject}/0`;
+    if (iduser && iduser !== '0')
+      url = `http://localhost:3000/workspace/${idproject}/${iduser}`;
+    console.log('url', url);
 
-    fetch(`http://localhost:3000/workspace/5de236e8f407761f2c36d06f`)
+    fetch(url)
       .then(response => response.json())
       .then(data => {
         console.log('Dans mon fetch: Get Sections-->', data);

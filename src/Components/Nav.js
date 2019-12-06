@@ -7,12 +7,123 @@ import { connect } from 'react-redux';
 import List from './List';
 import Calendar from './MyCalendar';
 import Conversations from './Conversations';
+import SearchButton from './SearchButton';
+import Project from './Project';
 import Progress from './Progress';
+import Plus from './Plus';
 
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 
 const { SubMenu } = Menu;
 const { Header, Content, Sider, Footer } = Layout;
+
+async function datatest() {
+  console.log(' **** datatest deb ******');
+  try {
+    var response = await fetch(`http://localhost:3000/users`);
+    var data = await response.json();
+    var user = data.user;
+    console.log('user', user[0]);
+    var userId = user[0]._id;
+
+    response = await fetch(`http://localhost:3000/projects`);
+    data = await response.json();
+    console.log('*****data projects******', data);
+    if (data.project.length !== 0) return true;
+
+    /* create one project */
+    var body = {
+      name: 'Project 1',
+      description: 'Project 1',
+      dtdeb: '2019-12-01',
+      duedate: '2019-12-20',
+      idowner: userId,
+      iduser: userId
+    };
+
+    response = await fetch('http://localhost:3000/projects/project', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+
+    data = await response.json();
+    console.log('***** data project ******', data);
+    var project = data.project;
+
+    /* create tasks linked to the project */
+    for (var i = 1; i < 6; i++) {
+      body = {
+        name: project.name + ' - Task ' + i,
+        description: project.name + ' - Task ' + i,
+        dtdeb: '2019-12-01',
+        duedate: '2019-12-0' + i,
+        idassignee: userId,
+        idproject: project._id,
+        iduser: userId
+      };
+
+      response = await fetch('http://localhost:3000/tasks/task', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+
+      data = await response.json();
+      console.log('***** data task ******', data);
+    }
+
+    /* Create conversations on the project */
+    for (i = 1; i < 3; i++) {
+      body = {
+        name: project.name + ' - Conversation ' + i,
+        type: 'conversation',
+        idproject: project._id,
+        comment: 'First comment on: ' + project.name + ' - Conversation ' + i,
+        iduser: userId
+      };
+
+      response = await fetch(
+        'http://localhost:3000/conversations/conversation',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        }
+      );
+
+      data = await response.json();
+      console.log('***** data conversation ******', data);
+    }
+
+    /* create status on the project */
+    for (i = 4; i < 6; i++) {
+      body = {
+        dtstatus: '2019-12-0' + i,
+        status: 'On track',
+        type: 'status',
+        idproject: project._id,
+        comment: 'First comment on: ' + project.name + ' - Status ' + i,
+        iduser: userId
+      };
+
+      response = await fetch('http://localhost:3000/status/status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+
+      data = await response.json();
+      console.log('***** data status ******', data);
+    }
+
+    console.log(' **** datatest fin ******');
+    return { res: true, msg: 'BD created' };
+  } catch (error) {
+    console.log(error);
+    return { res: false, msg: error };
+  }
+}
 
 class Nav extends Component {
   constructor() {
@@ -32,6 +143,8 @@ class Nav extends Component {
   componentDidMount() {
     console.log('componentDidMount');
 
+    datatest();
+
     fetch(`http://localhost:3000/users/`)
       .then(response => response.json())
       .then(data => {
@@ -46,7 +159,7 @@ class Nav extends Component {
         this.setState({ projects: data.project });
         this.props.saveprojects(data.project);
       });
-    document.getElementById('myTasks').click();
+    //document.getElementById('myTasks').click();
   }
 
   render() {
@@ -125,11 +238,19 @@ class Nav extends Component {
                   <span>Progress</span>
                 </Link>
               </Menu.Item>
+              <Menu.Item key='searchButton' disabled>
+                <SearchButton />
+              </Menu.Item>
               <SubMenu
                 key='5'
                 title={<Icon type='plus-circle' style={{ fontSize: '18px' }} />}
               >
-                <Menu.Item key='6'>Project</Menu.Item>
+                <Menu.Item key='6'>
+                  <div className='icone-plus'>
+                    <Icon type='project' />
+                    <Project />
+                  </div>
+                </Menu.Item>
                 <Menu.Item key='7'>Task</Menu.Item>
                 <Menu.Item key='8'>Conversation</Menu.Item>
                 <Menu.Item key='9'>Status</Menu.Item>

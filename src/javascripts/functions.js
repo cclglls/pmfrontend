@@ -1,6 +1,7 @@
 const formatDate = date => {
   var dt = new Date(date);
-  return dt.getDate() + '/' + dt.getMonth() + '/' + dt.getFullYear();
+  var month = dt.getMonth() + 1;
+  return dt.getDate() + '/' + month + '/' + dt.getFullYear();
 };
 
 module.exports = formatDate;

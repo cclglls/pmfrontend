@@ -72,3 +72,25 @@ h4 {
 .notes-month section {
   font-size: 28px;
 }
+
+/* ********************************** */
+/* project css : */
+.Input {
+  display: flex;
+  flex-direction: row;
+}
+
+.Owner-Date {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+}
+
+/* icones de la navbar alignées : composant Plus */
+.icone-plus {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+}
+/* ********************************** */
