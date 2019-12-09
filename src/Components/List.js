@@ -160,29 +160,33 @@ class List extends Component {
     this.setState(newState);
   };
 
-  componentDidMount() {
-    console.log(
-      'List - componentDidMount: props de ma page List --> ',
-      this.props.match.params
-    );
+  componentDidUpdate() {
     var iduser = this.props.match.params.iduser;
     var idproject = this.props.match.params.idproject;
-    var url;
-    if (idproject !== '0')
-      url = `http://localhost:3000/workspace/${idproject}/0`;
-    if (iduser && iduser !== '0')
-      url = `http://localhost:3000/workspace/${idproject}/${iduser}`;
-    console.log('url', url);
+    if (this.state.iduser !== iduser || this.state.idproject !== idproject) {
+      console.log(
+        'List - componentDidMount: props de ma page List --> ',
+        this.props.match.params
+      );
+      var url;
+      if (idproject !== '0')
+        url = `http://localhost:3000/workspace/${idproject}/0`;
+      if (iduser && iduser !== '0')
+        url = `http://localhost:3000/workspace/${idproject}/${iduser}`;
+      console.log('url', url);
 
-    fetch(url)
-      .then(response => response.json())
-      .then(data => {
-        console.log('Dans mon fetch: Get Sections-->', data);
-        /* this.setState({ sections: data.section }); */
-        var initialData = initializeData(data.section);
-        this.setState(initialData);
-        //this.props.savesections(data.section);
-      });
+      fetch(url)
+        .then(response => response.json())
+        .then(data => {
+          console.log('Dans mon fetch: Get Sections-->', data);
+          /* this.setState({ sections: data.section }); */
+          var initialData = initializeData(data.section);
+          initialData.iduser = iduser;
+          initialData.idproject = idproject;
+          this.setState(initialData);
+          //this.props.savesections(data.section);
+        });
+    }
   }
 
   componentWillUnmount() {

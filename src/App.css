@@ -38,7 +38,7 @@ h4 {
   width: 250px;
 }
 
-/* Menu */
+/**************** Menu ***************/
 .header {
   display: flex;
   flex-direction: row;
@@ -52,7 +52,7 @@ h4 {
   padding-right: 12px;
 }
 
-/* Events du Calendar */
+/* ********* Calendar events ******** */
 .events {
   list-style: none;
   margin: 0;
@@ -73,8 +73,7 @@ h4 {
   font-size: 28px;
 }
 
-/* ********************************** */
-/* project css : */
+/* **********Project css************* */
 .Input {
   display: flex;
   flex-direction: row;
@@ -86,11 +85,18 @@ h4 {
   justify-content: flex-start;
 }
 
-/* icones de la navbar alignées : composant Plus */
+/* (+) icones de la navbar alignées* */
 .icone-plus {
   display: flex;
   flex-direction: row;
-  justify-content: center;
+  justify-content: left;
   align-items: center;
 }
-/* ********************************** */
+
+/* *********** Side Bar  ************ */
+.project {
+  display: flex;
+  flex-direction: row;
+  justify-content: left;
+  align-items: center;
+}

@@ -10,7 +10,6 @@ import Conversations from './Conversations';
 import SearchButton from './SearchButton';
 import Project from './Project';
 import Progress from './Progress';
-import Plus from './Plus';
 
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 
@@ -131,13 +130,46 @@ class Nav extends Component {
     this.state = {
       collapsed: false,
       users: [],
-      projects: []
+      projects: [],
+      breadcrumb: <Breadcrumb style={{ margin: '16px 8px' }}></Breadcrumb>
     };
   }
 
   onCollapse = collapsed => {
     console.log(collapsed);
     this.setState({ collapsed });
+  };
+
+  onClick = e => {
+    console.log('click', e.target.textContent, e.target.id);
+    var context = 'User';
+    var idproject;
+    if (e.target.id.indexOf('Project') >= 0) {
+      context = 'Project';
+      idproject = e.target.id.slice(8);
+      console.log(idproject);
+    }
+    var breadcrumb;
+    if (idproject) {
+      breadcrumb = (
+        <div className='project'>
+          <Breadcrumb style={{ margin: '16px 0px' }}>
+            <Breadcrumb.Item>{context}</Breadcrumb.Item>
+            <Breadcrumb.Item>{e.target.textContent}</Breadcrumb.Item>
+          </Breadcrumb>
+          <Project text='...' idproject={idproject} />
+        </div>
+      );
+    } else {
+      breadcrumb = (
+        <Breadcrumb style={{ margin: '16px 0px' }}>
+          <Breadcrumb.Item>{context}</Breadcrumb.Item>
+          <Breadcrumb.Item>{e.target.textContent}</Breadcrumb.Item>
+        </Breadcrumb>
+      );
+    }
+    console.log('breadcrumb', breadcrumb);
+    this.setState({ breadcrumb });
   };
 
   componentDidMount() {
@@ -159,7 +191,7 @@ class Nav extends Component {
         this.setState({ projects: data.project });
         this.props.saveprojects(data.project);
       });
-    //document.getElementById('myTasks').click();
+    document.getElementById('myTasks').click();
   }
 
   render() {
@@ -169,7 +201,11 @@ class Nav extends Component {
     for (var i = 0; i < projects.length; i++) {
       projectList.push(
         <Menu.Item key={projects[i]._id}>
-          <Link to={`/HomePage/List/${projects[i]._id}`}>
+          <Link
+            onClick={this.onClick}
+            id={`Project ${projects[i]._id}`}
+            to={`/HomePage/List/${projects[i]._id}`}
+          >
             {projects[i].name}
           </Link>
         </Menu.Item>
@@ -181,7 +217,7 @@ class Nav extends Component {
     for (i = 0; i < users.length; i++) {
       userList.push(
         <Menu.Item key={users[i]._id}>
-          <Link to={`/HomePage/List/0/${users[i]._id}`}>
+          <Link onClick={this.onClick} to={`/HomePage/List/0/${users[i]._id}`}>
             {users[i].initials}
           </Link>
         </Menu.Item>
@@ -248,7 +284,7 @@ class Nav extends Component {
                 <Menu.Item key='6'>
                   <div className='icone-plus'>
                     <Icon type='project' />
-                    <Project />
+                    <Project text='Project' />
                   </div>
                 </Menu.Item>
                 <Menu.Item key='7'>Task</Menu.Item>
@@ -266,7 +302,7 @@ class Nav extends Component {
               <div className='logo' />
               <Menu theme='dark' defaultSelectedKeys={['1']} mode='inline'>
                 <Menu.Item key='1'>
-                  <Link id='myTasks' to={linkUserLogged}>
+                  <Link onClick={this.onClick} id='myTasks' to={linkUserLogged}>
                     <Icon type='dashboard' />
                     <span>My tasks</span>
                   </Link>
@@ -297,10 +333,7 @@ class Nav extends Component {
             </Sider>
             <Layout>
               <Content style={{ margin: '0 16px' }}>
-                <Breadcrumb style={{ margin: '16px 0' }}>
-                  <Breadcrumb.Item>User</Breadcrumb.Item>
-                  <Breadcrumb.Item>Bill</Breadcrumb.Item>
-                </Breadcrumb>
+                <span>{this.state.breadcrumb}</span>
                 <Switch>
                   <Route path='/HomePage/List' exact component={List} />
                   <Route
