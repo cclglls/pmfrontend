@@ -20,60 +20,72 @@ class Project extends React.PureComponent {
       duedate: new Date(),
       owner: '',
       idowner: '',
-      visible: false,
-      size: 'large'
+      visible: false
     };
   }
 
   // Traitement pour la modal
   showModal = () => {
     this.setState({
+      idproject: '',
+      name: '',
+      description: '',
+      duedate: new Date(),
+      owner: '',
+      idowner: '',
       visible: true
     });
   };
 
   handleOwner = (value, id) => {
-    console.log(' ');
-    console.log('Composant Project fonction handleOwner:');
-    console.log('Owner recupéré --> ', value, id);
+    //console.log(' ');
+    //console.log('Composant Project fonction handleOwner:');
+    //console.log('Owner recupéré --> ', value, id);
     this.setState({ owner: value, idowner: id });
   };
 
   //fonction qui va gerer le bouton submit
-  handleSubmit = () => {
-    console.log('Bouton Submit --> execution du fetch');
+  handleSubmit = async () => {
+    //console.log('Bouton Submit --> execution du fetch');
 
-    if (!this.props.idproject) {
-      fetch(`http://localhost:3000/projects/project`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: `name=${this.state.name}&description=${this.state.description}&idowner=${this.state.idowner}&duedate=${this.state.duedate}`
-      });
-    } else {
-      fetch(`http://localhost:3000/projects/project/${this.props.idproject}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: `name=${this.state.name}&description=${this.state.description}&idowner=${this.state.idowner}&duedate=${this.state.duedate}`
-      });
+    var response;
+
+    try {
+      if (!this.props.idproject) {
+        response = await fetch(`http://localhost:3000/projects/project`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: `name=${this.state.name}&description=${this.state.description}&idowner=${this.state.idowner}&duedate=${this.state.duedate}`
+        });
+      } else {
+        response = await fetch(
+          `http://localhost:3000/projects/project/${this.props.idproject}`,
+          {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `name=${this.state.name}&description=${this.state.description}&idowner=${this.state.idowner}&duedate=${this.state.duedate}`
+          }
+        );
+      }
+
+      response = await fetch(`http://localhost:3000/projects`);
+      var data = await response.json();
+      this.props.saveprojects(data.project);
+    } catch (error) {
+      console.log(error);
     }
+
     this.setState({ visible: false });
   };
 
   handleCancel = () => {
     this.setState({ visible: false });
   };
-  /***************************************/
-
-  //Submit button :
-  handleSizeChange = e => {
-    this.setState({ size: e.target.value });
-  };
-  /***************************************/
 
   onChange = (date, dateString) => {
-    console.log(date, dateString);
+    //console.log(date, dateString);
     var duedate = new Date(dateString);
-    console.log('due date', duedate, date._d);
+    //console.log('due date', duedate, date._d);
     this.setState({ duedate });
   };
 
@@ -83,7 +95,7 @@ class Project extends React.PureComponent {
       var projects;
       var users;
       var appli = this.props.appliFromStore;
-      console.log('Project appli', appli);
+      //console.log('Project appli', appli);
       if (appli) {
         for (var i = 0; i < appli.length; i++) {
           if (appli[i].type === 'saveprojects') {
@@ -95,23 +107,25 @@ class Project extends React.PureComponent {
         }
       }
 
+      //console.log('props', this.props.idproject);
+
       var project;
-      if (projects) {
+      if (projects && this.props.idproject) {
         project = projects.find(
           project => project._id === this.props.idproject
         );
       }
 
       if (project) {
-        console.log('project', project);
+        //console.log('project', project);
         var owner;
         if (project.idowner) {
           var user = users.find(user => user._id === project.idowner._id);
-          console.log('user', user);
+          //console.log('user', user);
           owner = user.initials;
         }
 
-        console.log(project.duedate);
+        //console.log(project.duedate);
 
         this.setState({
           idproject: project._id,
@@ -126,7 +140,7 @@ class Project extends React.PureComponent {
   }
 
   render() {
-    console.log('from Project render : contenu state -->', this.state);
+    //console.log('from Project render : contenu state -->', this.state);
 
     return (
       <div>
@@ -145,7 +159,7 @@ class Project extends React.PureComponent {
             <Button
               key='submit'
               type='primary'
-              size={this.state.size}
+              size='large'
               onClick={this.handleSubmit}
             >
               Submit
@@ -198,10 +212,19 @@ class Project extends React.PureComponent {
   }
 }
 
+function mapDispatchToProps(dispatch) {
+  return {
+    saveprojects: function(projects) {
+      //console.log('Project - mapDispatchToProps - Projects', projects);
+      dispatch({ type: 'saveprojects', projects });
+    }
+  };
+}
+
 function mapStateToProps(state) {
-  console.log('Project reducer : ', state.appli);
+  //console.log('Project reducer : ', state.appli);
 
   return { appliFromStore: state.appli };
 }
 
-export default connect(mapStateToProps, null)(Project);
+export default connect(mapStateToProps, mapDispatchToProps)(Project);

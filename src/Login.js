@@ -23,7 +23,7 @@ class Login extends Component {
   }
 
   handleSubmitSignUp() {
-    console.log('BOUTTON OK');
+    //console.log('BOUTTON OK');
 
     fetch(`http://localhost:3000/users/sign-up`, {
       method: 'POST',
@@ -34,7 +34,7 @@ class Login extends Component {
         return res.json();
       })
       .then(data => {
-        console.log('Dans mon fetch -->', data);
+        //console.log('Dans mon fetch -->', data);
 
         this.setState({
           isUserExist: true
@@ -44,14 +44,14 @@ class Login extends Component {
   }
 
   handleSubmitSignIn() {
-    console.log('Dans HandleSubmitIn', this.state.SignInEmail);
+    //console.log('Dans HandleSubmitIn', this.state.SignInEmail);
 
     fetch(
       `http://localhost:3000/users/sign-in?email=${this.state.SignInEmail}&password=${this.state.SignInPassword}`
     )
       .then(response => response.json())
       .then(data => {
-        console.log('Dans mon fetch -->', data);
+        //console.log('Dans mon fetch -->', data);
 
         // NE FONCTIONNE PAS
         if (data.isUserExist) {

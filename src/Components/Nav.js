@@ -17,17 +17,17 @@ const { SubMenu } = Menu;
 const { Header, Content, Sider, Footer } = Layout;
 
 async function datatest() {
-  console.log(' **** datatest deb ******');
+  //console.log(' **** datatest deb ******');
   try {
     var response = await fetch(`http://localhost:3000/users`);
     var data = await response.json();
     var user = data.user;
-    console.log('user', user[0]);
+    //console.log('user', user[0]);
     var userId = user[0]._id;
 
     response = await fetch(`http://localhost:3000/projects`);
     data = await response.json();
-    console.log('*****data projects******', data);
+    //console.log('*****data projects******', data);
     if (data.project.length !== 0) return true;
 
     /* create one project */
@@ -47,7 +47,7 @@ async function datatest() {
     });
 
     data = await response.json();
-    console.log('***** data project ******', data);
+    //console.log('***** data project ******', data);
     var project = data.project;
 
     /* create tasks linked to the project */
@@ -69,7 +69,7 @@ async function datatest() {
       });
 
       data = await response.json();
-      console.log('***** data task ******', data);
+      //console.log('***** data task ******', data);
     }
 
     /* Create conversations on the project */
@@ -92,7 +92,7 @@ async function datatest() {
       );
 
       data = await response.json();
-      console.log('***** data conversation ******', data);
+      //console.log('***** data conversation ******', data);
     }
 
     /* create status on the project */
@@ -113,10 +113,10 @@ async function datatest() {
       });
 
       data = await response.json();
-      console.log('***** data status ******', data);
+      //console.log('***** data status ******', data);
     }
 
-    console.log(' **** datatest fin ******');
+    //console.log(' **** datatest fin ******');
     return { res: true, msg: 'BD created' };
   } catch (error) {
     console.log(error);
@@ -136,18 +136,18 @@ class Nav extends Component {
   }
 
   onCollapse = collapsed => {
-    console.log(collapsed);
+    //console.log(collapsed);
     this.setState({ collapsed });
   };
 
   onClick = e => {
-    console.log('click', e.target.textContent, e.target.id);
+    //console.log('click', e.target.textContent, e.target.id);
     var context = 'User';
     var idproject;
     if (e.target.id.indexOf('Project') >= 0) {
       context = 'Project';
       idproject = e.target.id.slice(8);
-      console.log(idproject);
+      //console.log(idproject);
     }
     var breadcrumb;
     if (idproject) {
@@ -168,12 +168,12 @@ class Nav extends Component {
         </Breadcrumb>
       );
     }
-    console.log('breadcrumb', breadcrumb);
+    //console.log('breadcrumb', breadcrumb);
     this.setState({ breadcrumb });
   };
 
   componentDidMount() {
-    console.log('componentDidMount');
+    console.log('Nav componentDidMount');
 
     datatest();
 
@@ -192,6 +192,18 @@ class Nav extends Component {
         this.props.saveprojects(data.project);
       });
     document.getElementById('myTasks').click();
+  }
+
+  componentDidUpdate() {
+    if (this.props.appliFromStore) {
+      var action = this.props.appliFromStore.find(
+        action => action.type === 'saveprojects'
+      );
+      if (action) {
+        var projects = action.projects;
+        if (projects !== this.state.projects) this.setState({ projects });
+      }
+    }
   }
 
   render() {
@@ -367,18 +379,18 @@ class Nav extends Component {
 function mapDispatchToProps(dispatch) {
   return {
     saveusers: function(users) {
-      console.log('Nav - mapDispatchToProps - Users', users);
+      //console.log('Nav - mapDispatchToProps - Users', users);
       dispatch({ type: 'saveusers', users });
     },
     saveprojects: function(projects) {
-      console.log('Nav - mapDispatchToProps - Projects', projects);
+      //console.log('Nav - mapDispatchToProps - Projects', projects);
       dispatch({ type: 'saveprojects', projects });
     }
   };
 }
 
 function mapStateToProps(state) {
-  console.log('Nav reducer : ', state.appli);
+  //console.log('Nav reducer : ', state.appli);
 
   return { appliFromStore: state.appli };
 }

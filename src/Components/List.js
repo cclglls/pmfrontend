@@ -7,32 +7,32 @@ import Column from './column';
 import styled from 'styled-components';
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 
+const Title = styled.div`
+    display:flex
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin: 16px;
+    padding: 8px;
+    margin-bottom: 8px;
+    font-weight: bold;
+    border: 1px solid lightgrey;
+    border-radius: 5px;
+    width: 100wh;
+    background-color: white;
+`;
+const MyDiv = styled.div`
+  flex-grow: 1;
+  flex-shrink: 1;
+  flex-basis: 0;
+`;
+
 const Container = styled.div`
   display: flex;
   flex-direction: column;
 `;
 
 function initializeData(sections) {
-  //console.log('initializeData deb', sections);
-
-  /*
-  sections.map(function(section) {
-    var taskIds = section.task.map(function(task) {
-      var taskId = `tasks-${task._id}`;
-      return taskId;
-    });
-    //console.log(taskIds);
-    columns[`column-${section._id}`] = {
-      id: `column-${section._id}`,
-      title: section.name,
-      taskIds: taskIds
-    };
-    columnOrder.push(`column-${section._id}`);
-  });
-*/
-  //console.log('columns',columns);
-  //console.log('columnOrder',columnOrder);
-
   var tasks = {};
   var columns = {};
   var columnOrder = [];
@@ -46,7 +46,9 @@ function initializeData(sections) {
       var task = section.task[j];
       tasks[`tasks-${task._id}`] = {
         id: `tasks-${task._id}`,
-        content: task.name
+        content: task.name,
+        assignee: 'CD',
+        duedate: '2019-12-10'
       };
       taskList.push(task);
       var taskId = `tasks-${task._id}`;
@@ -70,7 +72,7 @@ function initializeData(sections) {
 
   initialData.columnOrder = columnOrder;
   initialData.taskList = taskList;
-  console.log('initializeData fin', initialData);
+  //console.log('initializeData fin', initialData);
 
   return initialData;
 }
@@ -160,37 +162,53 @@ class List extends Component {
     this.setState(newState);
   };
 
-  componentDidUpdate() {
+  refreshTasks = () => {
     var iduser = this.props.match.params.iduser;
     var idproject = this.props.match.params.idproject;
-    if (this.state.iduser !== iduser || this.state.idproject !== idproject) {
-      console.log(
-        'List - componentDidMount: props de ma page List --> ',
-        this.props.match.params
+    if (!iduser && !idproject) {
+      var action = this.props.appliFromStore.find(
+        action => action.type === 'signin'
       );
+      if (action) {
+        iduser = action.user._id;
+        idproject = '0';
+      }
+    }
+    if (this.state.iduser !== iduser || this.state.idproject !== idproject) {
+      if (this.state.columns) this.saveSectionsToDb();
+
+      //console.log('List - refreshTasks:', iduser, idproject);
       var url;
       if (idproject !== '0')
         url = `http://localhost:3000/workspace/${idproject}/0`;
       if (iduser && iduser !== '0')
         url = `http://localhost:3000/workspace/${idproject}/${iduser}`;
-      console.log('url', url);
 
       fetch(url)
         .then(response => response.json())
         .then(data => {
-          console.log('Dans mon fetch: Get Sections-->', data);
-          /* this.setState({ sections: data.section }); */
+          //console.log('Dans mon fetch: Get Sections-->', data);
           var initialData = initializeData(data.section);
           initialData.iduser = iduser;
           initialData.idproject = idproject;
           this.setState(initialData);
-          //this.props.savesections(data.section);
+          this.props.savesections(initialData);
         });
     }
+  };
+
+  componentDidMount() {
+    console.log('List - componentDidMount', this.props.appliFromStore);
+    this.refreshTasks();
   }
 
-  componentWillUnmount() {
-    console.log('sortie de List');
+  componentDidUpdate() {
+    console.log('List - componentDidUpdate', this.props.appliFromStore);
+    this.refreshTasks();
+  }
+
+  saveSectionsToDb = () => {
+    console.log('List saveSectionsToDb');
     var sections = [];
 
     for (const property in this.state.columns) {
@@ -210,7 +228,7 @@ class List extends Component {
       sections.push(section);
     }
 
-    console.log('sections', sections);
+    //console.log('sections', sections);
 
     var body = JSON.stringify({
       sections
@@ -223,54 +241,71 @@ class List extends Component {
     })
       .then(response => response.json())
       .then(data => {
-        console.log('Dans mon fetch: Put workspace Sections-->', data);
+        //console.log('Dans mon fetch: Put workspace Sections-->', data);
         /* stocker dans le store */
         var finalData = {};
         finalData.tasks = this.state.tasks;
         finalData.columns = this.state.columns;
         finalData.columnOrder = this.state.columnOrder;
         finalData.taskList = this.state.taskList;
+        finalData.iduser = this.state.iduser;
+        finalData.idproject = this.state.idproject;
         this.props.savesections(finalData);
       });
+  };
+
+  componentWillUnmount() {
+    console.log('List componentWillUnmount');
+    this.saveSectionsToDb();
   }
 
   render() {
+    //console.log('List render');
+
     if (!this.state.columnOrder) {
-      return <div>Page List</div>;
+      return <div></div>;
     }
     return (
-      <DragDropContext
-        // onDragStart={this.onDragStart}
-        // onDragUpdate={this.onDragUpdate}
-        onDragEnd={this.onDragEnd}
-      >
-        <Droppable
-          droppableId='all-columns'
-          direction='horizontal'
-          type='column'
+      <div>
+        <Title>
+          <MyDiv>Task</MyDiv>
+          <MyDiv>Assignee</MyDiv>
+          <MyDiv>Due Date</MyDiv>
+          <div></div>
+        </Title>
+        <DragDropContext
+          // onDragStart={this.onDragStart}
+          // onDragUpdate={this.onDragUpdate}
+          onDragEnd={this.onDragEnd}
         >
-          {provided => (
-            <Container {...provided.droppableProps} ref={provided.innerRef}>
-              {this.state.columnOrder.map((columnId, index) => {
-                const column = this.state.columns[columnId];
-                const tasks = column.taskIds.map(
-                  taskId => this.state.tasks[taskId]
-                );
+          <Droppable
+            droppableId='all-columns'
+            direction='horizontal'
+            type='column'
+          >
+            {provided => (
+              <Container {...provided.droppableProps} ref={provided.innerRef}>
+                {this.state.columnOrder.map((columnId, index) => {
+                  const column = this.state.columns[columnId];
+                  const tasks = column.taskIds.map(
+                    taskId => this.state.tasks[taskId]
+                  );
 
-                return (
-                  <Column
-                    key={column.id}
-                    column={column}
-                    tasks={tasks}
-                    index={index}
-                  />
-                );
-              })}
-              {provided.placeholder}
-            </Container>
-          )}
-        </Droppable>
-      </DragDropContext>
+                  return (
+                    <Column
+                      key={column.id}
+                      column={column}
+                      tasks={tasks}
+                      index={index}
+                    />
+                  );
+                })}
+                {provided.placeholder}
+              </Container>
+            )}
+          </Droppable>
+        </DragDropContext>
+      </div>
     );
   }
 }
@@ -278,10 +313,16 @@ class List extends Component {
 function mapDispatchToProps(dispatch) {
   return {
     savesections: function(finalData) {
-      console.log('mapDispatchToProps - Sections', finalData);
+      //console.log('mapDispatchToProps - Sections', finalData);
       dispatch({ type: 'savesections', finalData });
     }
   };
 }
 
-export default connect(null, mapDispatchToProps)(List);
+function mapStateToProps(state) {
+  console.log('List - reducer : ', state.appli);
+
+  return { appliFromStore: state.appli };
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(List);

@@ -48,9 +48,7 @@ class MyCalendar extends Component {
     );
   };
 
-  componentDidUpdate() {
-    console.log('componentDidUpdate MyCalendar');
-
+  refreshCalendar = () => {
     if (!this.state.taskList) {
       var finalData;
       var appli = this.props.appliFromStore;
@@ -66,10 +64,22 @@ class MyCalendar extends Component {
 
       if (finalData) {
         var taskList = finalData.taskList;
-        console.log('taskList', taskList);
-        this.setState({ taskList });
+        if (this.state.taskList !== taskList) {
+          console.log('taskList', taskList);
+          this.setState({ taskList });
+        }
       }
     }
+  };
+
+  componentDidMount() {
+    console.log('componentDidMount MyCalendar', this.props.appliFromStore);
+    this.refreshCalendar();
+  }
+
+  componentDidUpdate() {
+    console.log('componentDidUpdate MyCalendar', this.props.appliFromStore);
+    this.refreshCalendar();
   }
 
   render() {
