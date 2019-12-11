@@ -48,7 +48,8 @@ function initializeData(sections) {
         id: `tasks-${task._id}`,
         content: task.name,
         assignee: 'CD',
-        duedate: '2019-12-10'
+        duedate: '2019-12-10',
+        idtask: task._id
       };
       taskList.push(task);
       var taskId = `tasks-${task._id}`;
@@ -163,10 +164,23 @@ class List extends Component {
   };
 
   refreshTasks = () => {
+    var refreshTasks = false;
+    var action;
+    if (this.props.appliFromStore) {
+      action = this.props.appliFromStore.find(
+        action => action.type === 'refreshtasks'
+      );
+      if (action) {
+        refreshTasks = action.refreshTasks;
+      }
+    }
+
+    console.log('refresh tasks', refreshTasks);
+
     var iduser = this.props.match.params.iduser;
     var idproject = this.props.match.params.idproject;
     if (!iduser && !idproject) {
-      var action = this.props.appliFromStore.find(
+      action = this.props.appliFromStore.find(
         action => action.type === 'signin'
       );
       if (action) {
@@ -174,10 +188,19 @@ class List extends Component {
         idproject = '0';
       }
     }
-    if (this.state.iduser !== iduser || this.state.idproject !== idproject) {
+
+    if (
+      refreshTasks === true ||
+      this.state.iduser !== iduser ||
+      this.state.idproject !== idproject
+    ) {
       if (this.state.columns) this.saveSectionsToDb();
 
       //console.log('List - refreshTasks:', iduser, idproject);
+      if (refreshTasks) {
+        this.props.refreshtasks(false);
+      }
+
       var url;
       if (idproject !== '0')
         url = `http://localhost:3000/workspace/${idproject}/0`;
@@ -313,14 +336,18 @@ class List extends Component {
 function mapDispatchToProps(dispatch) {
   return {
     savesections: function(finalData) {
-      //console.log('mapDispatchToProps - Sections', finalData);
+      //console.log('List - mapDispatchToProps: ', finalData);
       dispatch({ type: 'savesections', finalData });
+    },
+    refreshtasks: function(refreshTasks) {
+      console.log('List - mapDispatchToProps', refreshTasks);
+      dispatch({ type: 'refreshtasks', refreshTasks });
     }
   };
 }
 
 function mapStateToProps(state) {
-  console.log('List - reducer : ', state.appli);
+  console.log('List - mapStateToProps : ', state.appli);
 
   return { appliFromStore: state.appli };
 }

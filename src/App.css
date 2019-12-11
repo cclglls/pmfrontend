@@ -100,3 +100,11 @@ h4 {
   justify-content: left;
   align-items: center;
 }
+
+/* ****** Composant NewTask ******** */
+/* placement des selectors .AssignedTo et DueDate */
+.AssignedTo-DueDate {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}

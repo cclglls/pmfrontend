@@ -9,6 +9,7 @@ import Calendar from './MyCalendar';
 import Conversations from './Conversations';
 import SearchButton from './SearchButton';
 import Project from './Project';
+import NewTask from './NewTask';
 import Progress from './Progress';
 
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
@@ -299,7 +300,12 @@ class Nav extends Component {
                     <Project text='Project' />
                   </div>
                 </Menu.Item>
-                <Menu.Item key='7'>Task</Menu.Item>
+                <Menu.Item key='7'>
+                  <div className='icone-plus'>
+                    <Icon type='dashboard' />
+                    <NewTask text='Task' />
+                  </div>
+                </Menu.Item>
                 <Menu.Item key='8'>Conversation</Menu.Item>
                 <Menu.Item key='9'>Status</Menu.Item>
               </SubMenu>

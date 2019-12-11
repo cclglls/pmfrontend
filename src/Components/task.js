@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Draggable } from 'react-beautiful-dnd';
+import NewTask from './NewTask';
 
 const Container = styled.div`
   display: flex;
@@ -34,6 +35,7 @@ export default class Task extends React.Component {
             <MyDiv>{this.props.task.content}</MyDiv>
             <MyDiv>{this.props.task.assignee}</MyDiv>
             <MyDiv>{this.props.task.duedate}</MyDiv>
+            <NewTask text='...' idtask={this.props.task.idtask} />
           </Container>
         )}
       </Draggable>
