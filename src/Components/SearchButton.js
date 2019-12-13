@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import '../App.css';
 import { Input, Button } from 'antd';
 import { Redirect } from 'react-router-dom';
@@ -15,9 +16,8 @@ class SearchButton extends Component {
 
   //fonction qui gere le clic sur le bouton loupe
   HandleSearch() {
-    console.log('clic bouton search détécté');
-    console.log('state ---> ', this.state);
-    this.setState({ clicked: true });
+    this.props.searchname(this.state.search);
+    this.setState({ clicked: true, search: '' });
   }
 
   renderRedirect = () => {
@@ -34,6 +34,7 @@ class SearchButton extends Component {
       <div>
         <Input
           onChange={e => this.setState({ search: e.target.value })}
+          value={this.state.search}
           placeholder='Search'
           style={{ width: '150px', marginRight: '1em' }}
         />
@@ -44,4 +45,13 @@ class SearchButton extends Component {
   }
 }
 
-export default SearchButton;
+function mapDispatchToProps(dispatch) {
+  return {
+    searchname: function(name) {
+      console.log('Search Button - mapDispatchToProps', name);
+      dispatch({ type: 'searchname', name });
+    }
+  };
+}
+
+export default connect(null, mapDispatchToProps)(SearchButton);

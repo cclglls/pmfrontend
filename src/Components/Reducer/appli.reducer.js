@@ -4,7 +4,8 @@ export default function(appli = [], action) {
     action.type === 'saveusers' ||
     action.type === 'saveprojects' ||
     action.type === 'savesections' ||
-    action.type === 'refreshtasks'
+    action.type === 'refreshtasks' ||
+    action.type === 'searchname'
   ) {
     var appliCopy = [...appli];
 
