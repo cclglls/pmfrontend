@@ -1,10 +1,10 @@
-import React, { Component } from 'react';
+import React from 'react';
 import '../App.css';
 import { Card } from 'antd';
 import { connect } from 'react-redux';
 import Conversation from './Conversation';
 
-class Conversations extends Component {
+class Conversations extends React.PureComponent {
   constructor() {
     super();
     this.state = {
@@ -22,36 +22,31 @@ class Conversations extends Component {
     }
 
     if (idproject && idproject !== '0' && idproject !== this.state.idproject) {
-      console.log('idproject', idproject);
-
       fetch(`http://localhost:3000/conversations/${idproject}`)
         .then(response => response.json())
         .then(data => {
-          console.log('Dans mon fetch: Get Conversations-->', data);
           this.setState({ conversations: data.conversation, idproject });
         });
     }
   };
 
+  handleConversation = value => {};
+
   componentDidMount() {
-    console.log('Conversation componentDidMount');
+    //console.log('Conversation - componentDidMount');
     this.refreshConversation();
   }
 
   componentDidUpdate() {
-    console.log('Conversation componentDidUpdate');
+    //console.log('Conversation - componentDidUpdate');
     this.refreshConversation();
   }
 
   render() {
     var conversationList = [];
 
-    console.log('Conversation render');
-
     for (var i = 0; i < this.state.conversations.length; i++) {
       var conversation = this.state.conversations[i];
-
-      console.log('comments', conversation.comment);
 
       conversationList.push(
         <div key={i} style={{ background: '#ECECEC', padding: '30px' }}>
@@ -60,7 +55,11 @@ class Conversations extends Component {
             bordered={false}
             style={{ width: 600 }}
           >
-            <Conversation comments={conversation.comment} />
+            <Conversation
+              idconversation={conversation._id}
+              comments={conversation.comment}
+              handleClickParent={this.handleConversation}
+            />
           </Card>
         </div>
       );
@@ -75,7 +74,7 @@ class Conversations extends Component {
 }
 
 function mapStateToProps(state) {
-  console.log('Conversation reducer : ', state.appli);
+  //console.log('Conversation - mapStateToProps : ', state.appli);
 
   return { appliFromStore: state.appli };
 }

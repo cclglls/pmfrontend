@@ -7,12 +7,13 @@ import { DatePicker } from 'antd';
 import moment from 'moment';
 
 import Owner from './Owner';
-import NewComment from './NewComment';
+import Conversation from './Conversation';
 import Followers from './Followers';
+import ProjectSelector from './ProjectSelector';
 
 const { TextArea } = Input;
 
-class NewTask extends React.Component {
+class NewTask extends React.PureComponent {
   state = {
     idtask: '',
     name: '',
@@ -20,6 +21,10 @@ class NewTask extends React.Component {
     duedate: new Date(),
     owner: '',
     idowner: '',
+    project: '',
+    idproject: undefined,
+    idconversation: '',
+    comments: [],
     visible: false
   };
 
@@ -31,6 +36,10 @@ class NewTask extends React.Component {
       duedate: new Date(),
       owner: '',
       idowner: '',
+      project: '',
+      idproject: undefined,
+      idconversation: '',
+      comments: [],
       visible: true
     });
   };
@@ -42,61 +51,71 @@ class NewTask extends React.Component {
 
   // fonction qui gere le selector owner comme task Rajouter l'id
   handleOwner = (value, id) => {
-    console.log(' ');
-    console.log('nom récupéré --> ', this.state.name);
-    console.log('description récupérée --> ', this.state.description);
-    console.log(' ');
-    console.log('Composant NewTask fonction handleOwner:');
-    console.log('Owner recupéré --> ', value);
     this.setState({ owner: value, idowner: id });
   };
+
+  // fonction qui gere le selector project comme project MANQUE l'ID du projet
+  handleProject = (value, id) => {
+    this.setState({ project: value, idproject: id });
+  };
+
+  handleConversation = value => {
+    this.setState({ comments: value });
+  };
+
   // fonction qui gere le DatePicker :
   onChange = (date, dateString) => {
-    console.log(date, dateString);
     var duedate = new Date(dateString);
-    console.log('due date', duedate, date._d);
+
     this.setState({ duedate });
   };
-  //************************************** */
 
   //fonction qui va gerer le bouton submit
   handleSubmit = async () => {
-    //console.log('Bouton Submit --> execution du fetch');
+    var idproject;
 
-    var body = {
-      name: this.state.name,
-      description: this.state.description,
-      dtuedate: this.state.duedate,
-      idassignee: this.state.idowner
-      // iduser: userId
-    };
+    if (this.state.idproject) idproject = this.state.idproject;
 
-    try {
-      var response;
-      if (!this.props.idtask) {
-        response = await fetch(`http://localhost:3000/tasks/task`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(body)
-        });
-      } else {
-        response = await fetch(
-          `http://localhost:3000/tasks/task/${this.props.idtask}`,
-          {
-            method: 'PUT',
+    if (idproject) {
+      var body = {
+        name: this.state.name,
+        description: this.state.description,
+        dtuedate: this.state.duedate,
+        idassignee: this.state.idowner,
+        comment: this.state.comments,
+        idproject
+        // iduser: userId
+      };
+
+      console.log('New Task - comments', this.state.comments);
+
+      try {
+        var response;
+        if (!this.props.idtask) {
+          response = await fetch(`http://localhost:3000/tasks/task`, {
+            method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(body)
-          }
-        );
-      }
-      console.log('response', response);
+          });
+        } else {
+          response = await fetch(
+            `http://localhost:3000/tasks/task/${this.props.idtask}`,
+            {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(body)
+            }
+          );
+          console.log('New Task - Save BD', response);
+        }
 
-      /* 
+        /* 
       Demander à List de se raffraichir par une varibale Redux
       */
-      this.props.refreshtasks(true);
-    } catch (error) {
-      console.log(error);
+        this.props.refreshtasks(true);
+      } catch (error) {
+        console.log(error);
+      }
     }
 
     this.setState({ visible: false });
@@ -108,9 +127,6 @@ class NewTask extends React.Component {
       var finalData;
       var taskList;
       var task;
-      var users;
-
-      //console.log('New Task appli', appli);
 
       if (appli) {
         for (var i = 0; i < appli.length; i++) {
@@ -118,59 +134,44 @@ class NewTask extends React.Component {
             finalData = appli[i].finalData;
             break;
           }
-          if (appli[i].type === 'saveusers') {
-            users = appli[i].users;
-          }
         }
       }
 
-      //console.log('props', this.props.idtask);
-
       if (finalData) taskList = finalData.taskList;
-
-      console.log('taskList', taskList);
 
       if (taskList && this.props.idtask) {
         task = taskList.find(task => task._id === this.props.idtask);
       }
 
       if (task) {
-        console.log('taskDetail', task);
-
-        var owner;
-        if (task.idassignee && users) {
-          var user = users.find(user => user._id === task.idassignee._id);
-          console.log('user', user);
-          owner = user.initials;
-        }
-
-        //console.log(task.duedate);
-
         this.setState({
           idtask: task._id,
           name: task.name,
           description: task.description,
           duedate: task.duedate,
-          owner,
-          idowner: task.idassignee._id
+          project: task.idproject.name,
+          idproject: task.idproject,
+          owner: task.idassignee.initials,
+          idowner: task.idassignee._id,
+          idconversation: task.idconversation._id,
+          comments: task.idconversation.comment
         });
       }
     }
   };
 
   componentDidMount() {
-    console.log('componentDidMount NewTask');
+    //console.log('NewTask - componentDidMount');
     this.refreshTask();
   }
 
   componentDidUpdate() {
-    console.log('componentDidUpdate NewTask');
+    //console.log('NewTask - componentDidUpdate');
     this.refreshTask();
   }
 
   render() {
     const { visible } = this.state;
-    console.log('idtask', this.props.idtask);
 
     return (
       <div>
@@ -231,9 +232,21 @@ class NewTask extends React.Component {
             />
           </div>
 
-          <Button style={{ backgroundColor: '#5b8c00', color: 'white' }}>
-            Completed
-          </Button>
+          <div className='AssignedTo-DueDate'>
+            <ProjectSelector
+              projectname={this.state.project}
+              handleClickParent={this.handleProject}
+            />
+            <Button
+              style={{
+                backgroundColor: '#5b8c00',
+                color: 'white',
+                marginRight: '3.5em'
+              }}
+            >
+              Completed
+            </Button>
+          </div>
 
           <Divider />
 
@@ -242,9 +255,10 @@ class NewTask extends React.Component {
               Create a services site 2019-04-01
             </Timeline.Item>
           </Timeline>
-          {/* composant NewComment ci dessous à changer par ton composant conversation */}
-          <NewComment />
-
+          <Conversation
+            comments={this.state.comments}
+            handleClickParent={this.handleConversation}
+          />
           <Followers />
         </Modal>
       </div>
@@ -255,14 +269,14 @@ class NewTask extends React.Component {
 function mapDispatchToProps(dispatch) {
   return {
     refreshtasks: function(refreshTasks) {
-      console.log('New task - mapDispatchToProps', refreshTasks);
+      //console.log('New task - mapDispatchToProps', refreshTasks);
       dispatch({ type: 'refreshtasks', refreshTasks });
     }
   };
 }
 
 function mapStateToProps(state) {
-  console.log('New Task - mapStateToProps : ', state.appli);
+  //console.log('New Task - mapStateToProps : ', state.appli);
 
   return { appliFromStore: state.appli };
 }

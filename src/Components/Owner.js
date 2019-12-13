@@ -21,20 +21,14 @@ class Owner extends React.Component {
 
   // fonction qui gere le noms du responsable du projet
   onChange(value, e) {
-    console.log(' ');
-    console.log(`from composant enfant Owner : Personne choisie -> ${value}`);
-    console.log('e.key', e.key);
-    console.log('e', e);
     this.props.handleClickParent(value, e.key);
   }
 
   componentDidMount() {
-    console.log('componentDidMount Owner');
+    //console.log('Owner - componentDidMount');
 
     var users;
     var appli = this.props.appliFromStore;
-
-    console.log('User appli', appli);
 
     if (appli) {
       for (var i = 0; i < appli.length; i++) {
@@ -81,7 +75,7 @@ class Owner extends React.Component {
 }
 
 function mapStateToProps(state) {
-  console.log('Project reducer : ', state.appli);
+  //console.log('Owner - mapStateToProps : ', state.appli);
 
   return { appliFromStore: state.appli };
 }

@@ -7,10 +7,12 @@ import { connect } from 'react-redux';
 import List from './List';
 import Calendar from './MyCalendar';
 import Conversations from './Conversations';
+import NewConversation from './NewConversation';
 import SearchButton from './SearchButton';
 import Project from './Project';
 import NewTask from './NewTask';
 import Progress from './Progress';
+import NewStatus from './NewStatus';
 
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 
@@ -75,11 +77,12 @@ async function datatest() {
 
     /* Create conversations on the project */
     for (i = 1; i < 3; i++) {
+      var z = 'First comment on: ' + project.name + ' - Conversation ' + i;
       body = {
         name: project.name + ' - Conversation ' + i,
         type: 'conversation',
         idproject: project._id,
-        comment: 'First comment on: ' + project.name + ' - Conversation ' + i,
+        comment: [{ _id: '0', comment: z }],
         iduser: userId
       };
 
@@ -98,12 +101,13 @@ async function datatest() {
 
     /* create status on the project */
     for (i = 4; i < 6; i++) {
+      z = 'First comment on: ' + project.name + ' - Status ' + i;
       body = {
         dtstatus: '2019-12-0' + i,
         status: 'On track',
         type: 'status',
         idproject: project._id,
-        comment: 'First comment on: ' + project.name + ' - Status ' + i,
+        comment: [{ _id: '0', comment: z }],
         iduser: userId
       };
 
@@ -137,18 +141,15 @@ class Nav extends Component {
   }
 
   onCollapse = collapsed => {
-    //console.log(collapsed);
     this.setState({ collapsed });
   };
 
   onClick = e => {
-    //console.log('click', e.target.textContent, e.target.id);
     var context = 'User';
     var idproject;
     if (e.target.id.indexOf('Project') >= 0) {
       context = 'Project';
       idproject = e.target.id.slice(8);
-      //console.log(idproject);
     }
     var breadcrumb;
     if (idproject) {
@@ -169,26 +170,25 @@ class Nav extends Component {
         </Breadcrumb>
       );
     }
-    //console.log('breadcrumb', breadcrumb);
+
     this.setState({ breadcrumb });
+    document.getElementById('List').click();
   };
 
   componentDidMount() {
-    console.log('Nav componentDidMount');
+    //console.log('Nav - componentDidMount');
 
     datatest();
 
     fetch(`http://localhost:3000/users/`)
       .then(response => response.json())
       .then(data => {
-        //console.log('Dans mon fetch: Get Users-->', data);
         this.setState({ users: data.user });
         this.props.saveusers(data.user);
       });
     fetch(`http://localhost:3000/projects/`)
       .then(response => response.json())
       .then(data => {
-        //console.log('Dans mon fetch: Get Projects-->', data);
         this.setState({ projects: data.project });
         this.props.saveprojects(data.project);
       });
@@ -264,7 +264,7 @@ class Nav extends Component {
               style={{ lineHeight: '64px' }}
             >
               <Menu.Item key='1'>
-                <Link to='/HomePage/List'>
+                <Link id='List' to='/HomePage/List'>
                   <Icon type='unordered-list' />
                   <span>List</span>
                 </Link>
@@ -306,8 +306,18 @@ class Nav extends Component {
                     <NewTask text='Task' />
                   </div>
                 </Menu.Item>
-                <Menu.Item key='8'>Conversation</Menu.Item>
-                <Menu.Item key='9'>Status</Menu.Item>
+                <Menu.Item key='8'>
+                  <div className='icone-plus'>
+                    <Icon type='message' />
+                    <NewConversation />
+                  </div>
+                </Menu.Item>
+                <Menu.Item key='9'>
+                  <div className='icone-plus'>
+                    <Icon type='message' />
+                    <NewStatus />
+                  </div>
+                </Menu.Item>
               </SubMenu>
             </Menu>
           </Header>

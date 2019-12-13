@@ -1,7 +1,10 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import '../App.css';
 import { Chart, Tooltip, Axis, Line, View, Point, Area } from 'viser-react';
 import { Card } from 'antd';
+import Conversation from './Conversation';
+
 const formatDate = require('../javascripts/functions');
 
 const DataSet = require('@antv/data-set');
@@ -29,28 +32,36 @@ class Progress extends Component {
     };
   }
 
-  componentDidMount() {
-    console.log('progress componentDidMount');
+  handleConversation = value => {};
 
-    fetch(`http://localhost:3000/status`)
-      .then(response => response.json())
-      .then(data => {
-        console.log('Dans mon fetch: Get Status-->', data);
-        this.setState({ status: data.status });
-      });
+  componentDidMount() {
+    //console.log('Progress - componentDidMount');
+    var idproject = this.props.idprojectFromStore;
+    if (idproject && idproject !== '0' && idproject !== this.state.idproject) {
+      fetch(`http://localhost:3000/status/${idproject}`)
+        .then(response => response.json())
+        .then(data => {
+          this.setState({ status: data.status, idproject });
+        });
+    }
   }
 
   render() {
     var progressList = [];
-
-    console.log('Progress render');
 
     for (var i = 0; i < this.state.status.length; i++) {
       var status = this.state.status[i];
       var data = status.progress;
       var dtstatus = formatDate(status.dtstatus);
 
-      console.log('progress', i, data);
+      console.log('Progress - status', status);
+
+      var comments = [];
+      var idconversation;
+      if (status.idconversation) {
+        idconversation = status.idconversation._id;
+        comments = status.idconversation.comment;
+      }
 
       var ds = new DataSet();
       var dv = ds
@@ -82,6 +93,11 @@ class Progress extends Component {
             bordered={false}
             style={{ width: 600 }}
           >
+            <Conversation
+              idconversation={idconversation}
+              comments={comments}
+              handleClickParent={this.handleConversation}
+            />
             <Chart
               forceFit
               data={data}
@@ -124,4 +140,16 @@ class Progress extends Component {
   }
 }
 
-export default Progress;
+function mapStateToProps(state) {
+  //console.log('Progress - mapStateToProps : ', state.appli);
+
+  var idproject;
+  if (state.appli) {
+    var action = state.appli.find(action => action.type === 'savesections');
+    idproject = action.finalData.idproject;
+  }
+
+  return { idprojectFromStore: idproject };
+}
+
+export default connect(mapStateToProps, null)(Progress);

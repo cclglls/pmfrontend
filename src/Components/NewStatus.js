@@ -1,94 +1,128 @@
-import React from "react";
-import "../App.css";
-import { Modal, Button, Divider, Switch } from "antd";
+import React from 'react';
+import '../App.css';
+import { Modal, Button, Divider, Switch } from 'antd';
 
+import StatusSelector from './StatusSelector';
+import Conversation from './Conversation';
+import ProjectSelector from './ProjectSelector';
 
-import StatusSelector from './StatusSelector'
-import NewComment from "./NewComment";
-
-
-
-
-// switch button
-function onChange(checked) {
-    console.log(`switch to ${checked}`);
-  }
-
-class NewStatus extends React.Component {
-
-   
- 
-// Traitement pour la modal
+class NewStatus extends React.PureComponent {
   state = {
-    loading: false,
     visible: false,
-    size: 'large',
-    comments : [],
+    comments: [],
+    checked: '',
+    status: '',
+    project: '',
+    idproject: undefined
   };
 
-  showModal = () => {
+  // switch button
+  onChange = checked => {
     this.setState({
-      visible: true
+      checked: checked
     });
   };
 
-  handleOk = () => {
-    this.setState({ loading: true });
-    setTimeout(() => {
-      this.setState({ loading: false, visible: false });
-    }, 3000);
+  // Traitement pour la modal
+  showModal = () => {
+    this.setState({
+      visible: true,
+      comments: [],
+      checked: '',
+      status: '',
+      project: '',
+      idproject: undefined
+    });
+  };
+
+  handlePost = async () => {
+    console.log('New Status - handlePost', this.state);
+    /* Save Status in DB */
+    if (this.state.status && this.state.idproject && this.state.comments) {
+      console.log('New Status - comments', this.state.comments);
+
+      var body = {
+        dtstatus: new Date(),
+        status: this.state.status,
+        idproject: this.state.idproject,
+        type: 'status',
+        comment: this.state.comments
+      };
+
+      try {
+        var response = await fetch(`http://localhost:3000/status/status`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+
+        console.log('New Status - Save DB', response);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+    this.setState({ visible: false });
   };
 
   handleCancel = () => {
     this.setState({ visible: false });
   };
-  /***************************************/
 
-
-  //Submit button :
-  handleSizeChange = e => {
-    this.setState({ size: e.target.value });
+  handleSelector = value => {
+    this.setState({ status: value });
   };
- /***************************************/
+
+  handleConversation = value => {
+    this.setState({ comments: value });
+  };
+
+  handleProject = (value, id) => {
+    console.log('New Status - HandleProject', value, id);
+    this.setState({ project: value, idproject: id });
+  };
 
   render() {
-
-    const { visible, size } = this.state;
+    const { visible } = this.state;
 
     return (
       <div>
-        <Button type="link" onClick={this.showModal}>
-        Status
-        </Button>
+        <span onClick={this.showModal}>Status</span>
         <Modal
+          title='Status'
           visible={visible}
-          onOk={this.handleOk}
           onCancel={this.handleCancel}
-          footer={[ 
-            <Button key="submit" type="primary" size={size} onClick={this.handleOk} >
+          footer={[
+            <Button
+              key='submit'
+              type='primary'
+              size='large'
+              onClick={this.handlePost}
+            >
               Post
             </Button>
-        ]}>
+          ]}
+        >
+          <div className='Input'>
+            <p style={{ marginRight: '1.4em' }}>New status update</p>
+            <StatusSelector status='' handleClickParent={this.handleSelector} />
+          </div>
 
-            <div className="Input">
-              <p style={{marginRight: '1.4em'}}>New status update</p> 
-              <StatusSelector />
-              
-            </div>
-          
-            
-            
-            <Divider style={{width : '100%'}}/>
+          <Divider style={{ width: '100%' }} />
 
-            <NewComment/>
-         
-                <div className="Input">
-                <p style={{marginRight: '1em'}} >Generate progress chart</p>
-                <Switch defaultChecked onChange={onChange} />             
-                </div>
+          <div className='Input'>
+            <p style={{ marginRight: '1em' }}>Project</p>
+            <ProjectSelector
+              projectname={this.state.project}
+              handleClickParent={this.handleProject}
+            />
+          </div>
 
+          <Conversation handleClickParent={this.handleConversation} />
 
-        
+          <div className='Input'>
+            <p style={{ marginRight: '1em' }}>Generate progress chart</p>
+            <Switch defaultChecked onChange={this.onChange} />
+          </div>
         </Modal>
       </div>
     );

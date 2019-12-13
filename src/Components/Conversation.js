@@ -1,5 +1,6 @@
-import React, { Component } from 'react';
+import React from 'react';
 import '../App.css';
+import { connect } from 'react-redux';
 
 import { Comment, Avatar, Form, Button, List, Input } from 'antd';
 import moment from 'moment';
@@ -33,11 +34,12 @@ const Editor = ({ onChange, onSubmit, submitting, value }) => (
   </div>
 );
 
-class Conversation extends Component {
+class Conversation extends React.PureComponent {
   constructor() {
     super();
     this.state = {
       comments: [],
+      commentsForDb: [],
       submitting: false,
       value: ''
     };
@@ -58,15 +60,33 @@ class Conversation extends Component {
         value: '',
         comments: [
           {
-            author: 'Han Solo',
+            author: this.props.userFromStore.initials,
             avatar:
               'https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png',
             content: <p>{this.state.value}</p>,
-            datetime: moment().fromNow()
+            datetime: moment().fromNow(),
+            idcomment: '0',
+            comment: this.state.value
           },
           ...this.state.comments
         ]
       });
+      var comments = [];
+
+      if (this.state.comments) {
+        for (var i = 0; i < this.state.comments.length; i++) {
+          var _id = '0';
+          if (this.state.comments[i].idcomment)
+            _id = this.state.comments[i].idcomment;
+          var comment = this.state.comments[i].comment;
+          comments.push({
+            _id,
+            comment
+          });
+        }
+      }
+      this.setState({ commentsForDb: comments });
+      this.props.handleClickParent(comments);
     }, 1000);
   };
 
@@ -77,21 +97,64 @@ class Conversation extends Component {
   };
 
   componentDidMount() {
-    console.log('Conversation componentDidMount', this.props.comments);
+    //console.log('Conversation - componentDidMount');
     var comments = [];
+    if (this.props.comments)
+      for (var i = 0; i < this.props.comments.length; i++) {
+        var comment = this.props.comments[i];
+        var author;
+        if (this.props.userFromStore)
+          author = this.props.userFromStore.initials;
+        comments.push({
+          author: author,
+          avatar:
+            'https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png',
+          content: <p>{comment.comment}</p>,
+          datetime: moment(comment.event[0].dtevent).fromNow(),
+          idcomment: comment._id,
+          comment: comment.comment
+        });
+      }
 
-    for (var i = 0; i < this.props.comments.length; i++) {
-      var comment = this.props.comments[i];
-      comments.push({
-        author: 'Han Solo',
-        avatar:
-          'https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png',
-        content: <p>{comment.comment}</p>,
-        datetime: moment(comment.event[0].dtevent).fromNow()
-      });
+    this.setState({ comments, commentsForDb: this.props.comments });
+  }
+
+  async componentWillUnmount() {
+    /* Save Conversation in DB */
+    console.log(
+      'Conversations - componentWillUnmount',
+      this.props.idconversation,
+      this.state
+    );
+    var comments;
+
+    if (
+      this.props.idconversation &&
+      this.state.commentsForDb &&
+      this.state.commentsForDb.length > 0
+    )
+      comments = this.state.commentsForDb;
+
+    if (comments) {
+      var body = {
+        comment: comments
+      };
+
+      try {
+        var response = await fetch(
+          `http://localhost:3000/conversations/conversation/${this.props.idconversation}`,
+          {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+          }
+        );
+
+        console.log('response', response);
+      } catch (error) {
+        console.log(error);
+      }
     }
-
-    this.setState({ comments });
   }
 
   render() {
@@ -104,7 +167,7 @@ class Conversation extends Component {
           avatar={
             <Avatar
               src='https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png'
-              alt='Han Solo'
+              alt='avatar'
             />
           }
           content={
@@ -121,4 +184,11 @@ class Conversation extends Component {
   }
 }
 
-export default Conversation;
+function mapStateToProps(state) {
+  //console.log('Conversation - mapStateToProps : ', state.appli);
+  var user = state.appli[0].user;
+
+  return { userFromStore: user };
+}
+
+export default connect(mapStateToProps, null)(Conversation);

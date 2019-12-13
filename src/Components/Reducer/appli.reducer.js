@@ -3,10 +3,9 @@ export default function(appli = [], action) {
     action.type === 'signin' ||
     action.type === 'saveusers' ||
     action.type === 'saveprojects' ||
-    action.type === 'savesections'
+    action.type === 'savesections' ||
+    action.type === 'refreshtasks'
   ) {
-    //console.log('Dans mon reducer --->', action);
-
     var appliCopy = [...appli];
 
     var index = appli.findIndex(a => a.type === action.type);
@@ -14,7 +13,7 @@ export default function(appli = [], action) {
     if (index < 0) appliCopy.push(action);
     else appliCopy.splice(index, 1, action);
 
-    //console.log('Dans mon reducer - appliCopy--->', appliCopy);
+    //console.log('appli.reducer', appliCopy);
 
     return appliCopy;
   } else {

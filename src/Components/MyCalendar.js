@@ -25,7 +25,6 @@ class MyCalendar extends Component {
           date.getMonth() === duedate.getMonth() &&
           date.getFullYear() === duedate.getFullYear()
         ) {
-          //console.log('egalite --->', date, duedate);
           listData.push({
             type: 'success',
             content: this.state.taskList[i].name
@@ -52,7 +51,7 @@ class MyCalendar extends Component {
     if (!this.state.taskList) {
       var finalData;
       var appli = this.props.appliFromStore;
-      console.log('myCalendar', appli);
+
       if (appli) {
         for (var i = 0; i < appli.length; i++) {
           if (appli[i].type === 'savesections') {
@@ -65,7 +64,6 @@ class MyCalendar extends Component {
       if (finalData) {
         var taskList = finalData.taskList;
         if (this.state.taskList !== taskList) {
-          console.log('taskList', taskList);
           this.setState({ taskList });
         }
       }
@@ -73,12 +71,12 @@ class MyCalendar extends Component {
   };
 
   componentDidMount() {
-    console.log('componentDidMount MyCalendar', this.props.appliFromStore);
+    //console.log('MyCalendar - componentDidMount', this.props.appliFromStore);
     this.refreshCalendar();
   }
 
   componentDidUpdate() {
-    console.log('componentDidUpdate MyCalendar', this.props.appliFromStore);
+    //console.log('MyCalendar - componentDidUpdate', this.props.appliFromStore);
     this.refreshCalendar();
   }
 
@@ -92,7 +90,7 @@ class MyCalendar extends Component {
 }
 
 function mapStateToProps(state) {
-  console.log('Mycalendar reducer : ', state.appli);
+  //console.log('Mycalendar mapStateToProps : ', state.appli);
 
   return { appliFromStore: state.appli };
 }

@@ -65,15 +65,12 @@ function initializeData(sections) {
     columnOrder.push(`column-${section._id}`);
   }
 
-  //console.log('tasks',tasks);
-
   var initialData = {};
   initialData.tasks = tasks;
   initialData.columns = columns;
 
   initialData.columnOrder = columnOrder;
   initialData.taskList = taskList;
-  //console.log('initializeData fin', initialData);
 
   return initialData;
 }
@@ -175,8 +172,6 @@ class List extends Component {
       }
     }
 
-    console.log('refresh tasks', refreshTasks);
-
     var iduser = this.props.match.params.iduser;
     var idproject = this.props.match.params.idproject;
     if (!iduser && !idproject) {
@@ -196,7 +191,6 @@ class List extends Component {
     ) {
       if (this.state.columns) this.saveSectionsToDb();
 
-      //console.log('List - refreshTasks:', iduser, idproject);
       if (refreshTasks) {
         this.props.refreshtasks(false);
       }
@@ -210,7 +204,6 @@ class List extends Component {
       fetch(url)
         .then(response => response.json())
         .then(data => {
-          //console.log('Dans mon fetch: Get Sections-->', data);
           var initialData = initializeData(data.section);
           initialData.iduser = iduser;
           initialData.idproject = idproject;
@@ -221,12 +214,12 @@ class List extends Component {
   };
 
   componentDidMount() {
-    console.log('List - componentDidMount', this.props.appliFromStore);
+    //console.log('List - componentDidMount', this.props.appliFromStore);
     this.refreshTasks();
   }
 
   componentDidUpdate() {
-    console.log('List - componentDidUpdate', this.props.appliFromStore);
+    //console.log('List - componentDidUpdate', this.props.appliFromStore);
     this.refreshTasks();
   }
 
@@ -235,23 +228,17 @@ class List extends Component {
     var sections = [];
 
     for (const property in this.state.columns) {
-      //console.log(property);
-
       var idsection = property.slice(7);
-      //console.log('idsection',idsection);
 
-      //console.log(this.state.columns[property].taskIds);
       var taskIds = this.state.columns[property].taskIds.map(function(task) {
         var idtask = { _id: task.slice(6) };
-        //console.log(idtask);
+
         return idtask;
       });
-      //console.log(taskIds);
+
       var section = { _id: idsection, task: taskIds };
       sections.push(section);
     }
-
-    //console.log('sections', sections);
 
     var body = JSON.stringify({
       sections
@@ -264,8 +251,6 @@ class List extends Component {
     })
       .then(response => response.json())
       .then(data => {
-        //console.log('Dans mon fetch: Put workspace Sections-->', data);
-        /* stocker dans le store */
         var finalData = {};
         finalData.tasks = this.state.tasks;
         finalData.columns = this.state.columns;
@@ -278,13 +263,11 @@ class List extends Component {
   };
 
   componentWillUnmount() {
-    console.log('List componentWillUnmount');
+    //console.log('List - componentWillUnmount');
     this.saveSectionsToDb();
   }
 
   render() {
-    //console.log('List render');
-
     if (!this.state.columnOrder) {
       return <div></div>;
     }
@@ -340,14 +323,14 @@ function mapDispatchToProps(dispatch) {
       dispatch({ type: 'savesections', finalData });
     },
     refreshtasks: function(refreshTasks) {
-      console.log('List - mapDispatchToProps', refreshTasks);
+      //console.log('List - mapDispatchToProps', refreshTasks);
       dispatch({ type: 'refreshtasks', refreshTasks });
     }
   };
 }
 
 function mapStateToProps(state) {
-  console.log('List - mapStateToProps : ', state.appli);
+  //console.log('List - mapStateToProps : ', state.appli);
 
   return { appliFromStore: state.appli };
 }
