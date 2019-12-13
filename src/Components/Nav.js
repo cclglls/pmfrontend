@@ -13,6 +13,7 @@ import Project from './Project';
 import NewTask from './NewTask';
 import Progress from './Progress';
 import NewStatus from './NewStatus';
+import Search from './Search';
 
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 
@@ -379,6 +380,7 @@ class Nav extends Component {
                     component={Conversations}
                   />
                   <Route path='/HomePage/Progress' component={Progress} />
+                  <Route path='/HomePage/Search' component={Search} />
                 </Switch>
               </Content>
               <Footer style={{ textAlign: 'center' }}>
