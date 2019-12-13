@@ -44,11 +44,15 @@ function initializeData(sections) {
     var taskIds = [];
     for (var j = 0; j < section.task.length; j++) {
       var task = section.task[j];
+      var duedate;
+      if (task.duedate) duedate = task.duedate;
+      var assignee;
+      if (task.idassignee) assignee = task.idassignee.initials;
       tasks[`tasks-${task._id}`] = {
         id: `tasks-${task._id}`,
         content: task.name,
-        assignee: 'CD',
-        duedate: '2019-12-10',
+        assignee,
+        duedate,
         idtask: task._id
       };
       taskList.push(task);

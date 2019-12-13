@@ -57,7 +57,7 @@ class Owner extends React.Component {
     }
     return (
       <Select
-        defaultValue={this.props.initials}
+        value={this.props.initials}
         showSearch
         style={{ width: 100 }}
         placeholder='Select a person'

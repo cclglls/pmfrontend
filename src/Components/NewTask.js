@@ -8,8 +8,9 @@ import moment from 'moment';
 
 import Owner from './Owner';
 import Conversation from './Conversation';
-import Followers from './Followers';
+//import Followers from './Followers';
 import ProjectSelector from './ProjectSelector';
+var formatDate = require('../javascripts/functions');
 
 const { TextArea } = Input;
 
@@ -25,6 +26,7 @@ class NewTask extends React.PureComponent {
     idproject: undefined,
     idconversation: '',
     comments: [],
+    completed: false,
     visible: false
   };
 
@@ -40,6 +42,7 @@ class NewTask extends React.PureComponent {
       idproject: undefined,
       idconversation: '',
       comments: [],
+      completed: false,
       visible: true
     });
   };
@@ -80,7 +83,7 @@ class NewTask extends React.PureComponent {
       var body = {
         name: this.state.name,
         description: this.state.description,
-        dtuedate: this.state.duedate,
+        duedate: this.state.duedate,
         idassignee: this.state.idowner,
         comment: this.state.comments,
         idproject
@@ -154,7 +157,10 @@ class NewTask extends React.PureComponent {
           owner: task.idassignee.initials,
           idowner: task.idassignee._id,
           idconversation: task.idconversation._id,
-          comments: task.idconversation.comment
+          comments: task.idconversation.comment,
+          event: task.event,
+          dtclosure: task.dtclosure,
+          completed: task.dtclosure ? true : false
         });
       }
     }
@@ -172,6 +178,26 @@ class NewTask extends React.PureComponent {
 
   render() {
     const { visible } = this.state;
+    var timelineList = [];
+    if (this.state.event) {
+      var z = 'Created on ' + formatDate(this.state.event[0].dtevent);
+      if (this.state.event[0].user) {
+        z = z + ' by ' + this.state.event[0].user.initials;
+      }
+      timelineList.push(
+        <Timeline.Item key='0' color='green'>
+          {z}
+        </Timeline.Item>
+      );
+      if (this.state.dtclosure) {
+        z = 'Completed on ' + formatDate(this.state.dtclosure);
+        timelineList.push(
+          <Timeline.Item key='1' color='green'>
+            {z}
+          </Timeline.Item>
+        );
+      }
+    }
 
     return (
       <div>
@@ -232,34 +258,43 @@ class NewTask extends React.PureComponent {
             />
           </div>
 
-          <div className='AssignedTo-DueDate'>
+          <div style={{ display: 'flex', flexDirection: 'row' }}>
+            <p style={{ marginRight: '2.6em' }}>Project</p>
             <ProjectSelector
+              style={{ marginLeft: '1.5em' }}
               projectname={this.state.project}
               handleClickParent={this.handleProject}
             />
-            <Button
-              style={{
-                backgroundColor: '#5b8c00',
-                color: 'white',
-                marginRight: '3.5em'
-              }}
-            >
-              Completed
-            </Button>
+            {this.state.completed ? (
+              <Button
+                style={{
+                  backgroundColor: '#5b8c00',
+                  color: 'white',
+                  marginLeft: '8.725em'
+                }}
+              >
+                Completed
+              </Button>
+            ) : (
+              <Button
+                style={{
+                  backgroundColor: 'red',
+                  color: 'white',
+                  marginLeft: '8.725em'
+                }}
+              >
+                Not completed
+              </Button>
+            )}
           </div>
 
           <Divider />
 
-          <Timeline>
-            <Timeline.Item color='green'>
-              Create a services site 2019-04-01
-            </Timeline.Item>
-          </Timeline>
+          <Timeline>{timelineList}</Timeline>
           <Conversation
             comments={this.state.comments}
             handleClickParent={this.handleConversation}
           />
-          <Followers />
         </Modal>
       </div>
     );

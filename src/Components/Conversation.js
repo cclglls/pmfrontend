@@ -6,10 +6,14 @@ import { Comment, Avatar, Form, Button, List, Input } from 'antd';
 import moment from 'moment';
 
 const { TextArea } = Input;
+const empty = {
+  emptyText: 'No comment'
+};
 
 const CommentList = ({ comments }) => (
   <List
     dataSource={comments}
+    locale={empty}
     header={`${comments.length} ${comments.length > 1 ? 'replies' : 'reply'}`}
     itemLayout='horizontal'
     renderItem={props => <Comment {...props} />}
@@ -87,7 +91,7 @@ class Conversation extends React.PureComponent {
       }
       this.setState({ commentsForDb: comments });
       this.props.handleClickParent(comments);
-    }, 1000);
+    }, 500);
   };
 
   handleChange = e => {
@@ -162,7 +166,7 @@ class Conversation extends React.PureComponent {
 
     return (
       <div>
-        {comments.length > 0 && <CommentList comments={comments} />}
+        {<CommentList comments={comments} />}
         <Comment
           avatar={
             <Avatar
