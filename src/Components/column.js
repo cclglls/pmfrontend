@@ -5,6 +5,7 @@ import { Droppable, Draggable } from 'react-beautiful-dnd';
 
 const Container = styled.div`
     margin: 8px;
+    padding: 4px;
     border: 1px solid lightgrey;
     border-radius: 5px;
     width: 100wh;
@@ -15,6 +16,7 @@ const Container = styled.div`
 
 const Title = styled.h3`
   padding: 8px;
+  color: #1890ff;
 `;
 const TaskList = styled.div`
   padding: 8px;

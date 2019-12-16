@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import '../App.css';
 import { Calendar, Badge } from 'antd';
 import { connect } from 'react-redux';
+var functions = require('../javascripts/functions');
+var retrievetaskList = functions.retrievetaskList;
 
 class MyCalendar extends Component {
   constructor() {
@@ -48,25 +50,12 @@ class MyCalendar extends Component {
   };
 
   refreshCalendar = () => {
-    if (!this.state.taskList) {
-      var finalData;
-      var appli = this.props.appliFromStore;
-
-      if (appli) {
-        for (var i = 0; i < appli.length; i++) {
-          if (appli[i].type === 'savesections') {
-            finalData = appli[i].finalData;
-            break;
-          }
-        }
-      }
-
-      if (finalData) {
-        var taskList = finalData.taskList;
-        if (this.state.taskList !== taskList) {
-          this.setState({ taskList });
-        }
-      }
+    if (
+      this.props.taskListFromStore &&
+      this.props.taskListFromStore !== this.state.taskList
+    ) {
+      var taskList = this.props.taskListFromStore;
+      this.setState({ taskList });
     }
   };
 
@@ -92,7 +81,7 @@ class MyCalendar extends Component {
 function mapStateToProps(state) {
   //console.log('Mycalendar mapStateToProps : ', state.appli);
 
-  return { appliFromStore: state.appli };
+  return { taskListFromStore: retrievetaskList(state) };
 }
 
 export default connect(mapStateToProps, null)(MyCalendar);

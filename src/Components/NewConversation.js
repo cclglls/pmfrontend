@@ -14,6 +14,8 @@ class NewConversation extends React.Component {
     project: '',
     idproject: undefined,
     comments: [],
+    idconversation: undefined,
+    error: '',
     visible: false
   };
 
@@ -23,11 +25,36 @@ class NewConversation extends React.Component {
       project: '',
       idproject: undefined,
       comments: [],
+      idconversation: undefined,
+      error: '',
       visible: true
     });
   };
 
+  componentDidUpdate(prevProps, prevState) {
+    if (
+      prevState.name !== this.state.name ||
+      prevState.project !== this.state.project
+    ) {
+      this.handleError();
+    }
+  }
+
   handleOk = async () => {
+    var error = '';
+    if (this.state.name === '') error = 'Name';
+
+    if (this.state.project === '') {
+      if (error) error = error + ', ';
+      error = error + 'Project';
+    }
+
+    if (error !== '') {
+      error = 'Mandatory fields: ' + error;
+      this.setState({ error });
+      return;
+    }
+
     /* Save Conversation in DB */
     if (this.state.name && this.state.idproject && this.state.comments) {
       var comments = this.state.comments;
@@ -73,12 +100,40 @@ class NewConversation extends React.Component {
     this.setState({ comments: value });
   };
 
+  handleError = () => {
+    var error = this.state.error;
+
+    if (this.state.error.indexOf('Name') < 0 || this.state.name !== '') {
+      error = error.replace('Name,', '');
+      error = error.replace('Name', '');
+    }
+
+    if (this.state.error.indexOf('Project') < 0 || this.state.project !== '') {
+      error = error.replace('Project,', '');
+      error = error.replace('Project', '');
+    }
+
+    if (error.indexOf('Name') < 0 && error.indexOf('Project') < 0) error = '';
+
+    if (error !== this.state.error) this.setState({ error });
+  };
+
   render() {
     const { visible } = this.state;
 
+    var stylename = { marginBottom: '1.4em', width: '80%' };
+    if (this.state.error.indexOf('Name') >= 0 && this.state.name === '') {
+      stylename.borderColor = '#FF524F';
+    }
+
     return (
       <div>
-        <span onClick={this.showModal}>Conversation</span>
+        <span
+          style={{ height: '50px', width: '100px' }}
+          onClick={this.showModal}
+        >
+          Conversation
+        </span>
         <Modal
           title='Conversation'
           visible={visible}
@@ -98,7 +153,7 @@ class NewConversation extends React.Component {
           <div className='Input'>
             <p style={{ marginRight: '1.4em' }}>Name</p>
             <Input
-              style={{ marginBottom: '1.4em', width: '80%' }}
+              style={stylename}
               placeholder='Conversation subject'
               onChange={e => this.setState({ name: e.target.value })}
             />
@@ -107,6 +162,7 @@ class NewConversation extends React.Component {
           <div className='Input'>
             <p style={{ marginRight: '1em' }}>Project</p>
             <ProjectSelector
+              error={this.state.error}
               projectname={this.state.project}
               handleClickParent={this.handleProject}
             />
@@ -114,7 +170,21 @@ class NewConversation extends React.Component {
 
           <Divider style={{ width: '100%' }} />
 
-          <Conversation handleClickParent={this.handleConversation} />
+          <Conversation
+            idconversation={this.state.idconversation}
+            handleClickParent={this.handleConversation}
+          />
+          <div className='Input'>
+            <p
+              style={{
+                marginTop: '1.25em',
+                marginBottom: '0px',
+                color: '#FF524F'
+              }}
+            >
+              {this.state.error}
+            </p>
+          </div>
         </Modal>
       </div>
     );

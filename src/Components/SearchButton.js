@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import '../App.css';
 import { Input, Button } from 'antd';
-import { Redirect } from 'react-router-dom';
 
 class SearchButton extends Component {
   constructor(props) {
@@ -15,20 +14,20 @@ class SearchButton extends Component {
   }
 
   //fonction qui gere le clic sur le bouton loupe
-  HandleSearch() {
+  HandleSearch(e) {
     this.props.searchname(this.state.search);
     this.setState({ clicked: true, search: '' });
+    this.props.handleClickParent(e);
   }
 
   renderRedirect = () => {
     if (this.state.clicked) {
       this.setState({ clicked: false });
-      return <Redirect to='/HomePage/Search' />;
     }
   };
 
   render() {
-    console.log('Search - render');
+    //console.log('Search - render');
 
     return (
       <div>
@@ -38,7 +37,12 @@ class SearchButton extends Component {
           placeholder='Search'
           style={{ width: '150px', marginRight: '1em' }}
         />
-        <Button onClick={this.HandleSearch} type='link' icon='search' />
+        <Button
+          id='Search'
+          onClick={this.HandleSearch}
+          type='link'
+          icon='search'
+        />
         {this.renderRedirect()}
       </div>
     );

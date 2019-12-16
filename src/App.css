@@ -80,6 +80,7 @@ h4 {
 }
 
 .Owner-Date {
+  margin-top: 2px;
   display: flex;
   flex-direction: row;
   justify-content: flex-start;

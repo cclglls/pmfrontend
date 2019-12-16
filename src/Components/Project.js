@@ -1,12 +1,15 @@
 import React from 'react';
 import '../App.css';
 import { connect } from 'react-redux';
+
 import moment from 'moment';
 
 import { DatePicker } from 'antd';
 import Owner from './Owner';
 
 import { Modal, Button, Input } from 'antd';
+var functions = require('../javascripts/functions');
+var retrieveprojects = functions.retrieveprojects;
 
 const { TextArea } = Input;
 
@@ -14,12 +17,13 @@ class Project extends React.PureComponent {
   constructor() {
     super();
     this.state = {
-      idproject: '',
+      idproject: undefined,
       name: '',
       description: '',
       duedate: new Date(),
       owner: '',
       idowner: '',
+      error: '',
       visible: false
     };
   }
@@ -27,26 +31,39 @@ class Project extends React.PureComponent {
   // Traitement pour la modal
   showModal = () => {
     this.setState({
-      idproject: '',
+      idproject: undefined,
       name: '',
       description: '',
       duedate: new Date(),
       owner: '',
       idowner: '',
+      error: '',
       visible: true
     });
   };
 
   handleOwner = (value, id) => {
-    //console.log(' ');
-    //console.log('Composant Project fonction handleOwner:');
-    //console.log('Owner recupéré --> ', value, id);
     this.setState({ owner: value, idowner: id });
   };
 
   //fonction qui va gerer le bouton submit
   handleSubmit = async () => {
-    //console.log('Bouton Submit --> execution du fetch');
+    var error = '';
+    if (this.state.name === '') error = 'Name';
+    if (this.state.owner === '') {
+      if (error) error = error + ', ';
+      error = error + 'Owner';
+    }
+    if (this.state.duedate === null) {
+      if (error) error = error + ', ';
+      error = error + 'Due date';
+    }
+
+    if (error !== '') {
+      error = 'Mandatory fields: ' + error;
+      this.setState({ error });
+      return;
+    }
 
     var response;
 
@@ -84,30 +101,25 @@ class Project extends React.PureComponent {
 
   onChange = (date, dateString) => {
     //console.log(date, dateString);
-    var duedate = new Date(dateString);
-    //console.log('due date', duedate, date._d);
+    var duedate = date;
+    if (date !== null) duedate = new Date(dateString);
+
     this.setState({ duedate });
   };
 
-  componentDidUpdate() {
-    if (this.props.idproject !== this.state.idproject) {
-      console.log('componentDidUpdate Project');
-      var projects;
-      var users;
-      var appli = this.props.appliFromStore;
-      //console.log('Project appli', appli);
-      if (appli) {
-        for (var i = 0; i < appli.length; i++) {
-          if (appli[i].type === 'saveprojects') {
-            projects = appli[i].projects;
-          }
-          if (appli[i].type === 'saveusers') {
-            users = appli[i].users;
-          }
-        }
-      }
+  componentDidUpdate(prevProps, prevState) {
+    //console.log('componentDidUpdate', prevState, this.state);
 
-      //console.log('props', this.props.idproject);
+    if (
+      prevState.name !== this.state.name ||
+      prevState.owner !== this.state.owner ||
+      prevState.duedate !== this.state.duedate
+    ) {
+      this.handleError();
+    }
+
+    if (this.props.idproject !== this.state.idproject) {
+      var projects = this.props.projectsFromStore;
 
       var project;
       if (projects && this.props.idproject) {
@@ -117,41 +129,77 @@ class Project extends React.PureComponent {
       }
 
       if (project) {
-        //console.log('project', project);
-        var owner;
-        if (project.idowner) {
-          var user = users.find(user => user._id === project.idowner._id);
-          //console.log('user', user);
-          owner = user.initials;
-        }
-
-        //console.log(project.duedate);
-
         this.setState({
           idproject: project._id,
           name: project.name,
           description: project.description,
           duedate: project.duedate,
-          owner,
+          owner: project.idowner.initials,
           idowner: project.idowner._id
         });
       }
     }
   }
 
+  handleError = () => {
+    var error = this.state.error;
+    if (this.state.error.indexOf('Name') < 0 || this.state.name !== '') {
+      error = error.replace('Name,', '');
+      error = error.replace('Name', '');
+    }
+    if (this.state.error.indexOf('Owner') < 0 || this.state.owner !== '') {
+      error = error.replace('Owner,', '');
+      error = error.replace('Owner', '');
+    }
+    if (
+      this.state.error.indexOf('Due date') < 0 ||
+      this.state.duedate !== null
+    ) {
+      error = error.replace('Due date,', '');
+      error = error.replace('Due date', '');
+    }
+    if (
+      error.indexOf('Name') < 0 &&
+      error.indexOf('Owner') < 0 &&
+      error.indexOf('Due date') < 0
+    )
+      error = '';
+
+    if (error !== this.state.error) this.setState({ error });
+  };
+
   render() {
     //console.log('from Project render : contenu state -->', this.state);
+
+    var stylename = { marginBottom: '1.25em', width: '80%' };
+    if (this.state.error.indexOf('Name') >= 0 && this.state.name === '') {
+      stylename.borderColor = '#FF524F';
+    }
+
+    var styledatepicker = { border: 'none' };
+    if (
+      this.state.error.indexOf('Due date') >= 0 &&
+      this.state.duedate === null
+    ) {
+      styledatepicker.border = '1px solid #FF524F';
+    }
 
     return (
       <div>
         {this.props.idproject ? (
-          <Button type='link' onClick={this.showModal}>
-            {this.props.text}
-          </Button>
+          <Button icon='export' type='link' onClick={this.showModal} />
         ) : (
-          <span onClick={this.showModal}>{this.props.text}</span>
+          <div>
+            <span
+              style={{ height: '50px', width: '100px' }}
+              onClick={this.showModal}
+            >
+              {this.props.text}
+            </span>
+          </div>
         )}
         <Modal
+          title='Project'
           visible={this.state.visible}
           onOk={this.handleOk}
           onCancel={this.handleCancel}
@@ -169,7 +217,7 @@ class Project extends React.PureComponent {
           <div className='Input'>
             <p style={{ marginRight: '1.25em' }}>Name</p>
             <Input
-              style={{ marginBottom: '1.25em', width: '80%' }}
+              style={stylename}
               onChange={e => this.setState({ name: e.target.value })}
               value={this.state.name}
               placeholder='Project'
@@ -191,6 +239,7 @@ class Project extends React.PureComponent {
             <div className='Input'>
               <p style={{ marginRight: '1em' }}>Owner</p>
               <Owner
+                error={this.state.error}
                 initials={this.state.owner}
                 handleClickParent={this.handleOwner}
               />
@@ -201,10 +250,26 @@ class Project extends React.PureComponent {
                 Due date
               </p>
               <DatePicker
-                value={moment(this.state.duedate)}
+                style={styledatepicker}
+                value={
+                  this.state.duedate !== null
+                    ? moment(this.state.duedate)
+                    : null
+                }
                 onChange={this.onChange}
               />
             </div>
+          </div>
+          <div className='Input'>
+            <p
+              style={{
+                marginTop: '1.25em',
+                marginBottom: '0px',
+                color: '#FF524F'
+              }}
+            >
+              {this.state.error}
+            </p>
           </div>
         </Modal>
       </div>
@@ -222,9 +287,9 @@ function mapDispatchToProps(dispatch) {
 }
 
 function mapStateToProps(state) {
-  //console.log('Project reducer : ', state.appli);
+  //console.log('Project - mapStateToProps : ', state.appli);
 
-  return { appliFromStore: state.appli };
+  return { projectsFromStore: retrieveprojects(state) };
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Project);

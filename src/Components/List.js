@@ -1,11 +1,15 @@
 import React, { Component } from 'react';
 import '../App.css';
-//import { Card } from 'antd';
+
 import { connect } from 'react-redux';
-//import initialData from './initial-data';
+
 import Column from './column';
 import styled from 'styled-components';
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
+
+var functions = require('../javascripts/functions');
+var retrieverefreshTasks = functions.retrieverefreshTasks;
+var retrieveuser = functions.retrieveuser;
 
 const Title = styled.div`
     display:flex
@@ -165,35 +169,35 @@ class List extends Component {
   };
 
   refreshTasks = () => {
-    var refreshTasks = false;
-    var action;
-    if (this.props.appliFromStore) {
-      action = this.props.appliFromStore.find(
-        action => action.type === 'refreshtasks'
-      );
-      if (action) {
-        refreshTasks = action.refreshTasks;
-      }
-    }
+    var refreshTasks = this.props.refreshTasksFromStore;
+    var user = this.props.userFromStore;
 
     var iduser = this.props.match.params.iduser;
     var idproject = this.props.match.params.idproject;
+
     if (!iduser && !idproject) {
-      action = this.props.appliFromStore.find(
-        action => action.type === 'signin'
-      );
-      if (action) {
-        iduser = action.user._id;
+      if (user) {
+        iduser = user._id;
         idproject = '0';
       }
     }
+
+    /*
+    console.log(
+      'RefreskTasks',
+      this.state.iduser,
+      iduser,
+      this.state.idproject,
+      idproject
+    );
+    */
 
     if (
       refreshTasks === true ||
       this.state.iduser !== iduser ||
       this.state.idproject !== idproject
     ) {
-      if (this.state.columns) this.saveSectionsToDb();
+      if (this.state.columns) this.saveSectionsToDb(false);
 
       if (refreshTasks) {
         this.props.refreshtasks(false);
@@ -227,8 +231,8 @@ class List extends Component {
     this.refreshTasks();
   }
 
-  saveSectionsToDb = () => {
-    console.log('List saveSectionsToDb');
+  saveSectionsToDb = dispatch => {
+    //console.log('List saveSectionsToDb');
     var sections = [];
 
     for (const property in this.state.columns) {
@@ -255,20 +259,22 @@ class List extends Component {
     })
       .then(response => response.json())
       .then(data => {
-        var finalData = {};
-        finalData.tasks = this.state.tasks;
-        finalData.columns = this.state.columns;
-        finalData.columnOrder = this.state.columnOrder;
-        finalData.taskList = this.state.taskList;
-        finalData.iduser = this.state.iduser;
-        finalData.idproject = this.state.idproject;
-        this.props.savesections(finalData);
+        if (dispatch) {
+          var finalData = {};
+          finalData.tasks = this.state.tasks;
+          finalData.columns = this.state.columns;
+          finalData.columnOrder = this.state.columnOrder;
+          finalData.taskList = this.state.taskList;
+          finalData.iduser = this.state.iduser;
+          finalData.idproject = this.state.idproject;
+          this.props.savesections(finalData);
+        }
       });
   };
 
   componentWillUnmount() {
     //console.log('List - componentWillUnmount');
-    this.saveSectionsToDb();
+    this.saveSectionsToDb(true);
   }
 
   render() {
@@ -278,10 +284,9 @@ class List extends Component {
     return (
       <div>
         <Title>
-          <MyDiv>Task</MyDiv>
+          <MyDiv style={{ marginLeft: '32px' }}>Task</MyDiv>
           <MyDiv>Assignee</MyDiv>
-          <MyDiv>Due Date</MyDiv>
-          <div></div>
+          <MyDiv style={{ marginRight: '26px' }}>Due Date</MyDiv>
         </Title>
         <DragDropContext
           // onDragStart={this.onDragStart}
@@ -336,7 +341,10 @@ function mapDispatchToProps(dispatch) {
 function mapStateToProps(state) {
   //console.log('List - mapStateToProps : ', state.appli);
 
-  return { appliFromStore: state.appli };
+  return {
+    refreshTasksFromStore: retrieverefreshTasks(state),
+    userFromStore: retrieveuser(state)
+  };
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(List);

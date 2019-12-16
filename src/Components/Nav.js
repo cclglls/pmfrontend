@@ -17,6 +17,10 @@ import Search from './Search';
 
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 
+var functions = require('../javascripts/functions');
+var retrieveuser = functions.retrieveuser;
+var retrieveprojects = functions.retrieveprojects;
+
 const { SubMenu } = Menu;
 const { Header, Content, Sider, Footer } = Layout;
 
@@ -146,12 +150,30 @@ class Nav extends Component {
   };
 
   onClick = e => {
-    var context = 'User';
+    //console.log('e.target', e.target.id);
+
+    var context;
+
     var idproject;
     if (e.target.id.indexOf('Project') >= 0) {
       context = 'Project';
       idproject = e.target.id.slice(8);
     }
+
+    var iduser;
+    if (e.target.id.indexOf('User') >= 0) {
+      context = 'User';
+      iduser = e.target.id.slice(5);
+    }
+
+    if (e.target.id.indexOf('myTasks') >= 0) {
+      context = 'myTasks';
+    }
+
+    if (e.target.id.indexOf('Search') >= 0) {
+      context = 'Search';
+    }
+
     var breadcrumb;
     if (idproject) {
       breadcrumb = (
@@ -163,17 +185,25 @@ class Nav extends Component {
           <Project text='...' idproject={idproject} />
         </div>
       );
-    } else {
+    } else if (iduser) {
       breadcrumb = (
         <Breadcrumb style={{ margin: '16px 0px' }}>
           <Breadcrumb.Item>{context}</Breadcrumb.Item>
           <Breadcrumb.Item>{e.target.textContent}</Breadcrumb.Item>
         </Breadcrumb>
       );
+    } else {
+      breadcrumb = (
+        <Breadcrumb style={{ margin: '16px 0px' }}>
+          <Breadcrumb.Item>{context}</Breadcrumb.Item>
+        </Breadcrumb>
+      );
     }
 
     this.setState({ breadcrumb });
-    document.getElementById('List').click();
+
+    if (context === 'Search') document.getElementById('Search').click();
+    else document.getElementById('List').click();
   };
 
   componentDidMount() {
@@ -197,15 +227,9 @@ class Nav extends Component {
   }
 
   componentDidUpdate() {
-    if (this.props.appliFromStore) {
-      var action = this.props.appliFromStore.find(
-        action => action.type === 'saveprojects'
-      );
-      if (action) {
-        var projects = action.projects;
-        if (projects !== this.state.projects) this.setState({ projects });
-      }
-    }
+    var projects = this.props.projectsFromStore;
+    if (projects && projects !== this.state.projects)
+      this.setState({ projects });
   }
 
   render() {
@@ -231,7 +255,11 @@ class Nav extends Component {
     for (i = 0; i < users.length; i++) {
       userList.push(
         <Menu.Item key={users[i]._id}>
-          <Link onClick={this.onClick} to={`/HomePage/List/0/${users[i]._id}`}>
+          <Link
+            onClick={this.onClick}
+            id={`User ${users[i]._id}`}
+            to={`/HomePage/List/0/${users[i]._id}`}
+          >
             {users[i].initials}
           </Link>
         </Menu.Item>
@@ -239,11 +267,8 @@ class Nav extends Component {
     }
 
     var linkUserLogged = '/HomePage/List/';
-    if (this.props.appliFromStore) {
-      if (this.props.appliFromStore[0]) {
-        linkUserLogged = `/HomePage/List/0/${this.props.appliFromStore[0].user._id}`;
-      }
-    }
+    if (this.props.userFromStore)
+      linkUserLogged = `/HomePage/List/0/${this.props.userFromStore._id}`;
 
     return (
       <Router basename='/'>
@@ -265,7 +290,7 @@ class Nav extends Component {
               style={{ lineHeight: '64px' }}
             >
               <Menu.Item key='1'>
-                <Link id='List' to='/HomePage/List'>
+                <Link id='List' to='#'>
                   <Icon type='unordered-list' />
                   <span>List</span>
                 </Link>
@@ -288,13 +313,12 @@ class Nav extends Component {
                   <span>Progress</span>
                 </Link>
               </Menu.Item>
-              <Menu.Item key='searchButton' disabled>
-                <SearchButton />
+              <Menu.Item key='searchButton'>
+                <Link id='Search' to='/HomePage/Search'>
+                  <SearchButton handleClickParent={this.onClick} />
+                </Link>
               </Menu.Item>
-              <SubMenu
-                key='5'
-                title={<Icon type='plus-circle' style={{ fontSize: '18px' }} />}
-              >
+              <SubMenu key='5' title={<Icon type='plus-circle' />}>
                 <Menu.Item key='6'>
                   <div className='icone-plus'>
                     <Icon type='project' />
@@ -315,7 +339,7 @@ class Nav extends Component {
                 </Menu.Item>
                 <Menu.Item key='9'>
                   <div className='icone-plus'>
-                    <Icon type='message' />
+                    <Icon type='area-chart' />
                     <NewStatus />
                   </div>
                 </Menu.Item>
@@ -410,7 +434,10 @@ function mapDispatchToProps(dispatch) {
 function mapStateToProps(state) {
   //console.log('Nav reducer : ', state.appli);
 
-  return { appliFromStore: state.appli };
+  return {
+    projectsFromStore: retrieveprojects(state),
+    userFromStore: retrieveuser(state)
+  };
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Nav);

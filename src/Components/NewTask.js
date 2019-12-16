@@ -8,29 +8,38 @@ import moment from 'moment';
 
 import Owner from './Owner';
 import Conversation from './Conversation';
-//import Followers from './Followers';
+
 import ProjectSelector from './ProjectSelector';
-var formatDate = require('../javascripts/functions');
+
+var functions = require('../javascripts/functions');
+var formatDate = functions.formatDate;
+var retrievetaskList = functions.retrievetaskList;
+var retrieveuser = functions.retrieveuser;
 
 const { TextArea } = Input;
 
 class NewTask extends React.PureComponent {
-  state = {
-    idtask: '',
-    name: '',
-    description: '',
-    duedate: new Date(),
-    owner: '',
-    idowner: '',
-    project: '',
-    idproject: undefined,
-    idconversation: '',
-    comments: [],
-    completed: false,
-    visible: false
-  };
+  constructor() {
+    super();
+    this.state = {
+      idtask: '',
+      name: '',
+      description: '',
+      duedate: new Date(),
+      owner: '',
+      idowner: '',
+      project: '',
+      idproject: undefined,
+      idconversation: undefined,
+      comments: [],
+      completed: false,
+      error: '',
+      visible: false
+    };
+  }
 
   showModal = () => {
+    //console.log('Show modal');
     this.setState({
       idtask: '',
       name: '',
@@ -40,9 +49,10 @@ class NewTask extends React.PureComponent {
       idowner: '',
       project: '',
       idproject: undefined,
-      idconversation: '',
+      idconversation: undefined,
       comments: [],
       completed: false,
+      error: '',
       visible: true
     });
   };
@@ -68,16 +78,47 @@ class NewTask extends React.PureComponent {
 
   // fonction qui gere le DatePicker :
   onChange = (date, dateString) => {
-    var duedate = new Date(dateString);
+    var duedate = date;
+    if (date !== null) duedate = new Date(dateString);
 
     this.setState({ duedate });
   };
 
   //fonction qui va gerer le bouton submit
   handleSubmit = async () => {
-    var idproject;
+    //console.log('handleSubmit', this.state);
 
+    var error = '';
+    if (this.state.name === '') error = 'Name';
+
+    if (this.state.owner === '') {
+      if (error) error = error + ', ';
+      error = error + 'Assignee';
+    }
+
+    if (this.state.project === '') {
+      if (error) error = error + ', ';
+      error = error + 'Project';
+    }
+
+    if (this.state.duedate === null) {
+      if (error) error = error + ', ';
+      error = error + 'Due date';
+    }
+
+    //console.log('error', error);
+
+    if (error !== '') {
+      error = 'Mandatory fields: ' + error;
+      this.setState({ error });
+      return;
+    }
+
+    var idproject;
     if (this.state.idproject) idproject = this.state.idproject;
+
+    var iduser;
+    if (this.props.userFromStore) iduser = this.props.userFromStore._id;
 
     if (idproject) {
       var body = {
@@ -86,11 +127,11 @@ class NewTask extends React.PureComponent {
         duedate: this.state.duedate,
         idassignee: this.state.idowner,
         comment: this.state.comments,
-        idproject
-        // iduser: userId
+        idproject,
+        iduser
       };
 
-      console.log('New Task - comments', this.state.comments);
+      //console.log('New Task - comments', this.state.comments);
 
       try {
         var response;
@@ -125,22 +166,12 @@ class NewTask extends React.PureComponent {
   };
 
   refreshTask = () => {
-    if (this.props.idtask !== this.state.idtask) {
-      var appli = this.props.appliFromStore;
-      var finalData;
-      var taskList;
+    if (
+      this.props.taskListFromStore &&
+      this.props.idtask !== this.state.idtask
+    ) {
+      var taskList = this.props.taskListFromStore;
       var task;
-
-      if (appli) {
-        for (var i = 0; i < appli.length; i++) {
-          if (appli[i].type === 'savesections') {
-            finalData = appli[i].finalData;
-            break;
-          }
-        }
-      }
-
-      if (finalData) taskList = finalData.taskList;
 
       if (taskList && this.props.idtask) {
         task = taskList.find(task => task._id === this.props.idtask);
@@ -166,13 +197,54 @@ class NewTask extends React.PureComponent {
     }
   };
 
+  handleError = () => {
+    var error = this.state.error;
+    if (this.state.error.indexOf('Name') < 0 || this.state.name !== '') {
+      error = error.replace('Name,', '');
+      error = error.replace('Name', '');
+    }
+    if (this.state.error.indexOf('Assignee') < 0 || this.state.owner !== '') {
+      error = error.replace('Assignee,', '');
+      error = error.replace('Assignee', '');
+    }
+    if (this.state.error.indexOf('Project') < 0 || this.state.project !== '') {
+      error = error.replace('Project,', '');
+      error = error.replace('Project', '');
+    }
+    if (
+      this.state.error.indexOf('Due date') < 0 ||
+      this.state.duedate !== null
+    ) {
+      error = error.replace('Due date,', '');
+      error = error.replace('Due date', '');
+    }
+    if (
+      error.indexOf('Name') < 0 &&
+      error.indexOf('Assignee') < 0 &&
+      error.indexOf('Project') < 0 &&
+      error.indexOf('Due date') < 0
+    )
+      error = '';
+
+    if (error !== this.state.error) this.setState({ error });
+  };
+
   componentDidMount() {
     //console.log('NewTask - componentDidMount');
     this.refreshTask();
   }
 
-  componentDidUpdate() {
+  componentDidUpdate(prevProps, prevState) {
     //console.log('NewTask - componentDidUpdate');
+    if (
+      prevState.name !== this.state.name ||
+      prevState.owner !== this.state.owner ||
+      prevState.duedate !== this.state.duedate ||
+      prevState.project !== this.state.project
+    ) {
+      this.handleError();
+    }
+
     this.refreshTask();
   }
 
@@ -199,12 +271,30 @@ class NewTask extends React.PureComponent {
       }
     }
 
+    var stylename = { marginBottom: '1.25em', width: '80%' };
+    if (this.state.error.indexOf('Name') >= 0 && this.state.name === '') {
+      stylename.borderColor = '#FF524F';
+    }
+
+    var styledatepicker = { border: 'none' };
+    if (
+      this.state.error.indexOf('Due date') >= 0 &&
+      this.state.duedate === null
+    ) {
+      styledatepicker.border = '1px solid #FF524F';
+    }
+
     return (
       <div>
         {this.props.idtask ? (
           <Button icon='export' size='small' onClick={this.showModal} />
         ) : (
-          <span onClick={this.showModal}>{this.props.text}</span>
+          <span
+            style={{ height: '50px', width: '100px' }}
+            onClick={this.showModal}
+          >
+            {this.props.text}
+          </span>
         )}
         <Modal
           visible={visible}
@@ -220,16 +310,17 @@ class NewTask extends React.PureComponent {
           <div className='Input'>
             <p style={{ marginRight: '3.2em' }}>Name</p>
             <Input
-              style={{ marginBottom: '1.25em', width: '80%' }}
+              style={stylename}
               onChange={e => this.setState({ name: e.target.value })}
               value={this.state.name}
             />
           </div>
 
           <div className='AssignedTo-DueDate'>
-            <div className='Input'>
+            <div className='Input' style={{ marginBottom: '1.25em' }}>
               <p style={{ marginRight: '0.6em' }}>Assigned to</p>
               <Owner
+                error={this.state.error}
                 initials={this.state.owner}
                 handleClickParent={this.handleOwner}
               />
@@ -241,7 +332,12 @@ class NewTask extends React.PureComponent {
             >
               <p style={{ marginRight: '1em' }}>Due date</p>
               <DatePicker
-                value={moment(this.state.duedate)}
+                style={styledatepicker}
+                value={
+                  this.state.duedate !== null
+                    ? moment(this.state.duedate)
+                    : null
+                }
                 onChange={this.onChange}
               />
             </div>
@@ -261,6 +357,7 @@ class NewTask extends React.PureComponent {
           <div style={{ display: 'flex', flexDirection: 'row' }}>
             <p style={{ marginRight: '2.6em' }}>Project</p>
             <ProjectSelector
+              error={this.state.error}
               style={{ marginLeft: '1.5em' }}
               projectname={this.state.project}
               handleClickParent={this.handleProject}
@@ -268,7 +365,7 @@ class NewTask extends React.PureComponent {
             {this.state.completed ? (
               <Button
                 style={{
-                  backgroundColor: '#5b8c00',
+                  backgroundColor: '#56BF8E',
                   color: 'white',
                   marginLeft: '8.725em'
                 }}
@@ -278,12 +375,12 @@ class NewTask extends React.PureComponent {
             ) : (
               <Button
                 style={{
-                  backgroundColor: 'red',
+                  backgroundColor: '#FF524F',
                   color: 'white',
                   marginLeft: '8.725em'
                 }}
               >
-                Not completed
+                Incomplete
               </Button>
             )}
           </div>
@@ -292,9 +389,21 @@ class NewTask extends React.PureComponent {
 
           <Timeline>{timelineList}</Timeline>
           <Conversation
+            idconversation={this.state.idconversation}
             comments={this.state.comments}
             handleClickParent={this.handleConversation}
           />
+          <div className='Input'>
+            <p
+              style={{
+                marginTop: '1.25em',
+                marginBottom: '0px',
+                color: '#FF524F'
+              }}
+            >
+              {this.state.error}
+            </p>
+          </div>
         </Modal>
       </div>
     );
@@ -313,7 +422,10 @@ function mapDispatchToProps(dispatch) {
 function mapStateToProps(state) {
   //console.log('New Task - mapStateToProps : ', state.appli);
 
-  return { appliFromStore: state.appli };
+  return {
+    taskListFromStore: retrievetaskList(state),
+    userFromStore: retrieveuser(state)
+  };
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(NewTask);

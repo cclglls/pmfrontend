@@ -3,6 +3,9 @@ import '../App.css';
 import { Select } from 'antd';
 import { connect } from 'react-redux';
 
+var functions = require('../javascripts/functions');
+var retrieveusers = functions.retrieveusers;
+
 const { Option } = Select;
 
 // fonction qui gere la valeur saisie dans champ ATTENTION value en dur pour le moment
@@ -27,16 +30,7 @@ class Owner extends React.Component {
   componentDidMount() {
     //console.log('Owner - componentDidMount');
 
-    var users;
-    var appli = this.props.appliFromStore;
-
-    if (appli) {
-      for (var i = 0; i < appli.length; i++) {
-        if (appli[i].type === 'saveusers') {
-          users = appli[i].users;
-        }
-      }
-    }
+    var users = this.props.usersFromStore;
 
     if (users) {
       this.setState({
@@ -55,12 +49,20 @@ class Owner extends React.Component {
         </Option>
       );
     }
+    var style = { width: 100 };
+    if (
+      this.props.error &&
+      (this.props.error.indexOf('Owner') >= 0 ||
+        this.props.error.indexOf('Assignee') >= 0)
+    )
+      style.border = '1px solid #FF524F';
+
     return (
       <Select
         value={this.props.initials}
         showSearch
-        style={{ width: 100 }}
-        placeholder='Select a person'
+        style={style}
+        placeholder='Select a user'
         optionFilterProp='children'
         onChange={this.onChange}
         onSearch={onSearch}
@@ -77,7 +79,7 @@ class Owner extends React.Component {
 function mapStateToProps(state) {
   //console.log('Owner - mapStateToProps : ', state.appli);
 
-  return { appliFromStore: state.appli };
+  return { usersFromStore: retrieveusers(state) };
 }
 
 export default connect(mapStateToProps, null)(Owner);

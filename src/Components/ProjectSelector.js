@@ -3,6 +3,9 @@ import '../App.css';
 import { Select } from 'antd';
 import { connect } from 'react-redux';
 
+var functions = require('../javascripts/functions');
+var retrieveprojects = functions.retrieveprojects;
+
 const { Option } = Select;
 
 function onBlur(e) {
@@ -47,11 +50,16 @@ class ProjectSelector extends React.Component {
         </Option>
       );
     }
+
+    var style = { width: 300 };
+    if (this.props.error && this.props.error.indexOf('Project') >= 0)
+      style.border = '1px solid #FF524F';
+
     return (
       <Select
         value={this.props.projectname}
         showSearch
-        style={{ width: 300 }}
+        style={style}
         placeholder='Select a project'
         optionFilterProp='children'
         onChange={this.onChange}
@@ -70,18 +78,7 @@ class ProjectSelector extends React.Component {
 function mapStateToProps(state) {
   //console.log('Project - mapStateToProps : ', state.appli);
 
-  var appli = state.appli;
-  var projects;
-
-  if (appli) {
-    for (var i = 0; i < appli.length; i++) {
-      if (appli[i].type === 'saveprojects') {
-        projects = appli[i].projects;
-      }
-    }
-  }
-
-  return { projectsFromStore: projects };
+  return { projectsFromStore: retrieveprojects(state) };
 }
 
 export default connect(mapStateToProps, null)(ProjectSelector);

@@ -4,7 +4,10 @@ import styled from 'styled-components';
 import { Draggable } from 'react-beautiful-dnd';
 import { Button } from 'antd';
 import NewTask from './NewTask';
-var formatDate = require('../javascripts/functions');
+var functions = require('../javascripts/functions');
+var formatDate = functions.formatDate;
+var retrievetaskList = functions.retrievetaskList;
+var retrieveuser = functions.retrieveuser;
 
 const Container = styled.div`
   display: flex;
@@ -25,33 +28,43 @@ const MyDiv = styled.div`
 `;
 
 class Task extends React.PureComponent {
-  state = {
-    idtask: undefined,
-    task: {}
-  };
+  constructor() {
+    super();
+    this.state = {
+      idtask: undefined,
+      dtclosure: undefined,
+      iduser: undefined
+    };
+  }
 
   handleClick = async () => {
-    console.log('Task - Click détecté');
-    var body = {
-      dtclosure: new Date()
-      // iduser: userId
-    };
+    //console.log('Task - Click détecté');
 
-    try {
-      var response;
-      if (this.state.idtask) {
-        response = await fetch(
-          `http://localhost:3000/tasks/task/${this.state.idtask}`,
-          {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(body)
-          }
-        );
-        console.log('New Task - Save BD', response);
+    if (!this.state.dtclosure) {
+      var dtclosure = new Date();
+
+      var body = {
+        dtclosure,
+        iduser: this.props.userFromStore._id
+      };
+
+      try {
+        var response;
+        if (this.state.idtask) {
+          response = await fetch(
+            `http://localhost:3000/tasks/task/${this.state.idtask}`,
+            {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(body)
+            }
+          );
+          console.log('New Task - Save BD', response);
+          this.setState({ dtclosure });
+        }
+      } catch (error) {
+        console.log(error);
       }
-    } catch (error) {
-      console.log(error);
     }
   };
 
@@ -68,9 +81,10 @@ class Task extends React.PureComponent {
       }
 
       if (task) {
+        //console.log('task - refreshTask', task);
         this.setState({
           idtask: task._id,
-          task: task
+          dtclosure: task.dtclosure
         });
       }
     }
@@ -82,19 +96,19 @@ class Task extends React.PureComponent {
   }
 
   componentDidUpdate() {
-    //console.log('task - componentDidMount');
+    //console.log('task - componentDidUpdate');
     this.refreshTask();
   }
 
   render() {
-    console.log('Task - render', this.state);
+    //console.log('Task - render', this.state);
 
     var style = {
-      marginRight: '8.725em'
+      marginRight: '8px'
     };
 
-    if (this.state.task && this.state.task.dtclosure) {
-      style.backgroundColor = '#5b8c00';
+    if (this.state.dtclosure) {
+      style.backgroundColor = '#56BF8E';
       style.color = 'white';
     }
 
@@ -125,24 +139,12 @@ class Task extends React.PureComponent {
 }
 
 function mapStateToProps(state) {
-  console.log('Task - mapStateToProps : ', state.appli);
+  //console.log('Task - mapStateToProps : ', state.appli);
 
-  var appli = state.appli;
-  var finalData;
-  var taskList;
-
-  if (appli) {
-    for (var i = 0; i < appli.length; i++) {
-      if (appli[i].type === 'savesections') {
-        finalData = appli[i].finalData;
-        break;
-      }
-    }
-  }
-
-  if (finalData) taskList = finalData.taskList;
-
-  return { taskListFromStore: taskList };
+  return {
+    taskListFromStore: retrievetaskList(state),
+    userFromStore: retrieveuser(state)
+  };
 }
 
 export default connect(mapStateToProps, null)(Task);

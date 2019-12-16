@@ -5,7 +5,9 @@ import { Chart, Tooltip, Axis, Line, View, Point, Area } from 'viser-react';
 import { Card } from 'antd';
 import Conversation from './Conversation';
 
-const formatDate = require('../javascripts/functions');
+var functions = require('../javascripts/functions');
+var formatDate = functions.formatDate;
+var retrieveidproject = functions.retrieveidproject;
 
 const DataSet = require('@antv/data-set');
 
@@ -54,7 +56,20 @@ class Progress extends Component {
       var data = status.progress;
       var dtstatus = formatDate(status.dtstatus);
 
-      console.log('Progress - status', status);
+      var colorTitleCard;
+      switch (status.status) {
+        case 'On track':
+          colorTitleCard = '#56BF8E';
+          break;
+        case 'At risk':
+          colorTitleCard = '#E69167';
+          break;
+        case 'Off track':
+          colorTitleCard = '#FF524F';
+          break;
+        default:
+          break;
+      }
 
       var comments = [];
       var idconversation;
@@ -89,12 +104,14 @@ class Progress extends Component {
       progressList.push(
         <div key={i} style={{ background: '#ECECEC', padding: '30px' }}>
           <Card
-            title={`Status ${dtstatus}`}
+            title={`Status on ${dtstatus} - ${status.status}`}
             bordered={false}
+            headStyle={{ backgroundColor: colorTitleCard, color: 'white' }}
             style={{ width: 600 }}
           >
             <Conversation
               idconversation={idconversation}
+              savecommentsInDb='true'
               comments={comments}
               handleClickParent={this.handleConversation}
             />
@@ -134,7 +151,14 @@ class Progress extends Component {
       );
     }
     if (progressList.length === 0) {
-      progressList.push(<h1 key='0'>No project status available</h1>);
+      if (this.state.idproject)
+        progressList.push(<h1 key='0'>No project status available</h1>);
+      else
+        progressList.push(
+          <h1 key='0' style={{ color: 'red' }}>
+            Select a project ...
+          </h1>
+        );
     }
     return <div>{progressList}</div>;
   }
@@ -143,13 +167,7 @@ class Progress extends Component {
 function mapStateToProps(state) {
   //console.log('Progress - mapStateToProps : ', state.appli);
 
-  var idproject;
-  if (state.appli) {
-    var action = state.appli.find(action => action.type === 'savesections');
-    idproject = action.finalData.idproject;
-  }
-
-  return { idprojectFromStore: idproject };
+  return { idprojectFromStore: retrieveidproject(state) };
 }
 
 export default connect(mapStateToProps, null)(Progress);
