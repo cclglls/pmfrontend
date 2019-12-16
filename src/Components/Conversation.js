@@ -5,6 +5,9 @@ import { connect } from 'react-redux';
 import { Comment, Avatar, Form, Button, List, Input } from 'antd';
 import moment from 'moment';
 
+var functions = require('../javascripts/functions');
+var retrieveuser = functions.retrieveuser;
+
 const { TextArea } = Input;
 const empty = {
   emptyText: 'No comment'
@@ -100,40 +103,62 @@ class Conversation extends React.PureComponent {
     });
   };
 
+  refreshcomments = () => {
+    /*
+    console.log(
+      'refreshcomments',
+      this.props.idconversation,
+      this.state.idconversation
+    );
+    */
+    if (this.props.idconversation !== this.state.idconversation) {
+      var comments = [];
+      if (this.props.comments)
+        for (var i = 0; i < this.props.comments.length; i++) {
+          var comment = this.props.comments[i];
+          var author;
+          if (this.props.userFromStore)
+            author = this.props.userFromStore.initials;
+          comments.push({
+            author: author,
+            avatar:
+              'https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png',
+            content: <p>{comment.comment}</p>,
+            datetime: moment(comment.event[0].dtevent).fromNow(),
+            idcomment: comment._id,
+            comment: comment.comment
+          });
+        }
+
+      this.setState({
+        idconversation: this.props.idconversation,
+        comments,
+        commentsForDb: this.props.comments
+      });
+    }
+  };
+
   componentDidMount() {
     //console.log('Conversation - componentDidMount');
-    var comments = [];
-    if (this.props.comments)
-      for (var i = 0; i < this.props.comments.length; i++) {
-        var comment = this.props.comments[i];
-        var author;
-        if (this.props.userFromStore)
-          author = this.props.userFromStore.initials;
-        comments.push({
-          author: author,
-          avatar:
-            'https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png',
-          content: <p>{comment.comment}</p>,
-          datetime: moment(comment.event[0].dtevent).fromNow(),
-          idcomment: comment._id,
-          comment: comment.comment
-        });
-      }
+    this.refreshcomments();
+  }
 
-    this.setState({ comments, commentsForDb: this.props.comments });
+  componentDidUpdate() {
+    //console.log('Conversation - componentDidMount');
+    this.refreshcomments();
   }
 
   async componentWillUnmount() {
     /* Save Conversation in DB */
-    console.log(
+    /*console.log(
       'Conversations - componentWillUnmount',
       this.props.idconversation,
       this.state
-    );
+    );*/
     var comments;
 
     if (
-      this.props.idconversation &&
+      this.props.savecommentsInDb === 'true' &&
       this.state.commentsForDb &&
       this.state.commentsForDb.length > 0
     )
@@ -190,9 +215,8 @@ class Conversation extends React.PureComponent {
 
 function mapStateToProps(state) {
   //console.log('Conversation - mapStateToProps : ', state.appli);
-  var user = state.appli[0].user;
 
-  return { userFromStore: user };
+  return { userFromStore: retrieveuser(state) };
 }
 
 export default connect(mapStateToProps, null)(Conversation);

@@ -14,11 +14,15 @@ class StatusSelector extends React.PureComponent {
   };
 
   render() {
+    var style = { width: 300 };
+    if (this.props.error && this.props.error.indexOf('Status') >= 0)
+      style.border = '1px solid #FF524F';
+
     return (
       <Select
         value={this.props.status}
         showSearch
-        style={{ width: 300 }}
+        style={style}
         placeholder='Set a status'
         optionFilterProp='children'
         onChange={this.onChange}
