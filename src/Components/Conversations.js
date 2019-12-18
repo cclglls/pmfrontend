@@ -29,6 +29,17 @@ class Conversations extends React.PureComponent {
 
   handleConversation = value => {};
 
+  handleName = (idconversation, name) => {
+    /* A ecrire */
+    var newconversations = this.state.conversations.map(conversation => {
+      if (conversation._id === idconversation) {
+        conversation.name = name;
+      }
+      return conversation;
+    });
+    this.setState({ conversations: newconversations });
+  };
+
   componentDidMount() {
     //console.log('Conversation - componentDidMount');
     this.refreshConversation();
@@ -52,7 +63,10 @@ class Conversations extends React.PureComponent {
             bordered={false}
             style={{ width: 600 }}
           >
-            <UpdateConv idconversation={conversation._id} />
+            <UpdateConv
+              handleClickParent={this.handleName}
+              idconversation={conversation._id}
+            />
             <Conversation
               idconversation={conversation._id}
               savecommentsInDb='true'

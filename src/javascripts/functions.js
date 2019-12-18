@@ -69,6 +69,15 @@ const retrieverefreshTasks = state => {
   return refreshTasks;
 };
 
+const retrievename = state => {
+  var name;
+  if (state.appli) {
+    var action = state.appli.find(action => action.type === 'searchname');
+    if (action) name = action.name;
+  }
+  return name;
+};
+
 module.exports = {
   formatDate,
   retrievetaskList,
@@ -76,5 +85,6 @@ module.exports = {
   retrieveusers,
   retrieveidproject,
   retrieveprojects,
-  retrieverefreshTasks
+  retrieverefreshTasks,
+  retrievename
 };

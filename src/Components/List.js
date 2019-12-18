@@ -192,16 +192,16 @@ class List extends Component {
     );
     */
 
+    if (this.state.iduser !== iduser || this.state.idproject !== idproject) {
+      if (this.state.columns) this.saveSectionsToDb(false);
+    }
+
     if (
       refreshTasks === true ||
       this.state.iduser !== iduser ||
       this.state.idproject !== idproject
     ) {
-      if (this.state.columns) this.saveSectionsToDb(false);
-
-      if (refreshTasks) {
-        this.props.refreshtasks(false);
-      }
+      if (refreshTasks) this.props.refreshtasks(false);
 
       var url;
       if (idproject !== '0')
@@ -259,6 +259,7 @@ class List extends Component {
     })
       .then(response => response.json())
       .then(data => {
+        console.log('NewTask - save sections', data);
         if (dispatch) {
           var finalData = {};
           finalData.tasks = this.state.tasks;

@@ -9,12 +9,13 @@ import ProjectSelector from './ProjectSelector';
 class NewStatus extends React.PureComponent {
   state = {
     visible: false,
-    idconversation: undefined,
+    idconversation: '0',
     comments: [],
     checked: true,
     status: '',
     project: '',
-    idproject: undefined
+    idproject: undefined,
+    error: ''
   };
 
   // switch button
@@ -28,12 +29,13 @@ class NewStatus extends React.PureComponent {
   showModal = () => {
     this.setState({
       visible: true,
-      idconversation: undefined,
+      idconversation: '0',
       comments: [],
       checked: true,
       status: '',
       project: '',
-      idproject: undefined
+      idproject: undefined,
+      error: ''
     });
   };
 
@@ -184,7 +186,7 @@ class NewStatus extends React.PureComponent {
           <div className='Input'>
             <p
               style={{
-                marginTop: '1.25em',
+                marginTop: '0px',
                 marginBottom: '0px',
                 color: '#FF524F'
               }}
