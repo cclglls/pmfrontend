@@ -49,6 +49,29 @@ class MyCalendar extends Component {
     );
   };
 
+  getMonthData = value => {
+    var count = 0;
+    var duedate;
+    if (this.state.taskList)
+      for (var i = 0; i < this.state.taskList.length; i++) {
+        duedate = new Date(this.state.taskList[i].duedate);
+
+        if (value.month() === duedate.getMonth()) count++;
+      }
+
+    return count;
+  };
+
+  monthCellRender = value => {
+    const num = this.getMonthData(value);
+    return num ? (
+      <div className='notes-month'>
+        <section>{num}</section>
+        <span>Task number</span>
+      </div>
+    ) : null;
+  };
+
   refreshCalendar = () => {
     if (
       this.props.taskListFromStore &&
@@ -72,7 +95,11 @@ class MyCalendar extends Component {
   render() {
     return (
       <div>
-        <Calendar dateCellRender={this.dateCellRender} />,
+        <Calendar
+          dateCellRender={this.dateCellRender}
+          monthCellRender={this.monthCellRender}
+        />
+        ,
       </div>
     );
   }

@@ -14,7 +14,7 @@ class NewConversation extends React.Component {
     project: '',
     idproject: undefined,
     comments: [],
-    idconversation: undefined,
+    idconversation: '0',
     error: '',
     visible: false
   };
@@ -25,7 +25,7 @@ class NewConversation extends React.Component {
       project: '',
       idproject: undefined,
       comments: [],
-      idconversation: undefined,
+      idconversation: '0',
       error: '',
       visible: true
     });
@@ -172,12 +172,13 @@ class NewConversation extends React.Component {
 
           <Conversation
             idconversation={this.state.idconversation}
+            comments={this.state.comments}
             handleClickParent={this.handleConversation}
           />
           <div className='Input'>
             <p
               style={{
-                marginTop: '1.25em',
+                marginTop: '0px',
                 marginBottom: '0px',
                 color: '#FF524F'
               }}

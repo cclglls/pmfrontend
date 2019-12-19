@@ -109,3 +109,14 @@ h4 {
   flex-direction: row;
   justify-content: space-between;
 }
+
+/***** Enlever le padding des commentaires */
+.ant-comment-inner {
+  padding: 0px;
+  padding-top: 16px;
+}
+
+.ant-list-empty-text {
+  padding: 16px;
+  padding-bottom: 0px;
+}

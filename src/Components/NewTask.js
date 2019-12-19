@@ -30,7 +30,7 @@ class NewTask extends React.PureComponent {
       idowner: '',
       project: '',
       idproject: undefined,
-      idconversation: undefined,
+      idconversation: '0',
       comments: [],
       completed: false,
       error: '',
@@ -49,7 +49,7 @@ class NewTask extends React.PureComponent {
       idowner: '',
       project: '',
       idproject: undefined,
-      idconversation: undefined,
+      idconversation: '0',
       comments: [],
       completed: false,
       error: '',
@@ -121,9 +121,16 @@ class NewTask extends React.PureComponent {
     if (this.props.userFromStore) iduser = this.props.userFromStore._id;
 
     if (idproject) {
+      var dtdeb;
+
+      if (!this.props.idtask) {
+        dtdeb = formatDate(new Date());
+      }
+
       var body = {
         name: this.state.name,
         description: this.state.description,
+        dtdeb,
         duedate: this.state.duedate,
         idassignee: this.state.idowner,
         comment: this.state.comments,
@@ -249,6 +256,8 @@ class NewTask extends React.PureComponent {
   }
 
   render() {
+    //console.log('New task', this.state.comments);
+
     const { visible } = this.state;
     var timelineList = [];
     if (this.state.event) {
@@ -396,7 +405,7 @@ class NewTask extends React.PureComponent {
           <div className='Input'>
             <p
               style={{
-                marginTop: '1.25em',
+                marginTop: 'Opx',
                 marginBottom: '0px',
                 color: '#FF524F'
               }}
