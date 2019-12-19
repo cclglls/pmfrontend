@@ -59,6 +59,7 @@ class UpdateConv extends React.PureComponent {
     }
 
     this.setState({ visible: false });
+    this.props.handleClickParent(this.state.idconversation, this.state.name);
   };
 
   handleCancel = () => {
@@ -75,12 +76,6 @@ class UpdateConv extends React.PureComponent {
       )
         .then(response => response.json())
         .then(data => {
-          console.log(
-            'fetch',
-            this.props.idconversation,
-            data,
-            data.conversation[0].name
-          );
           this.setState({
             name: data.conversation[0].name,
             idconversation: data.conversation[0]._id
@@ -102,7 +97,7 @@ class UpdateConv extends React.PureComponent {
   };
 
   render() {
-    console.log('from UpdateConv render : contenu state -->', this.state);
+    //console.log('from UpdateConv render : contenu state -->', this.state);
 
     var stylename = { marginBottom: '1.25em', width: '80%' };
     if (this.state.error.indexOf('Name') >= 0 && this.state.name === '') {
@@ -110,8 +105,8 @@ class UpdateConv extends React.PureComponent {
     }
 
     return (
-      <div>
-        <Button icon='export' type='link' onClick={this.showModal} />
+      <div style={{ textAlign: 'right' }}>
+        <Button icon='export' size='small' onClick={this.showModal} />
 
         <Modal
           title='Conversation'

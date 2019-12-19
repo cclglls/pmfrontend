@@ -14,7 +14,7 @@ class Login extends Component {
             <div className='App__Form'>
               <div className='PageSwitcher'>
                 <NavLink
-                  to='/Login/sign-in'
+                  to='/sign-in'
                   activeClassName='PageSwitcher__Item--Active'
                   className='PageSwitcher__Item'
                 >
@@ -22,7 +22,7 @@ class Login extends Component {
                 </NavLink>
                 <NavLink
                   exact
-                  to='/Login'
+                  to='/'
                   activeClassName='PageSwitcher__Item--Active'
                   className='PageSwitcher__Item'
                 >
@@ -32,7 +32,7 @@ class Login extends Component {
 
               <div className='FormTitle'>
                 <NavLink
-                  to='/Login/sign-in'
+                  to='/sign-in'
                   activeClassName='FormTitle__Link--Active'
                   className='FormTitle__Link'
                 >
@@ -41,7 +41,7 @@ class Login extends Component {
                 or{' '}
                 <NavLink
                   exact
-                  to='/Login'
+                  to='/'
                   activeClassName='FormTitle__Link--Active'
                   className='FormTitle__Link'
                 >
@@ -49,8 +49,8 @@ class Login extends Component {
                 </NavLink>
               </div>
 
-              <Route exact path='/Login/' component={SignUpForm}></Route>
-              <Route path='/Login/sign-in' component={SignInForm}></Route>
+              <Route exact path='/' component={SignUpForm}></Route>
+              <Route path='/sign-in' component={SignInForm}></Route>
             </div>
           </div>
         </div>
