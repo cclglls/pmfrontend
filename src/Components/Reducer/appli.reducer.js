@@ -5,8 +5,12 @@ export default function(appli = [], action) {
     action.type === 'saveprojects' ||
     action.type === 'savesections' ||
     action.type === 'refreshtasks' ||
-    action.type === 'searchname'
+    action.type === 'searchname'    ||
+
+    action.type === 'searchdata'
   ) {
+    console.log("reducer content")
+    console.log(action)
     var appliCopy = [...appli];
 
     var index = appli.findIndex(a => a.type === action.type);
@@ -15,9 +19,9 @@ export default function(appli = [], action) {
     else appliCopy.splice(index, 1, action);
 
     //console.log('appli.reducer', appliCopy);
-
     return appliCopy;
   } else {
+    console.log("reducer marche pas")
     return appli;
   }
 }
