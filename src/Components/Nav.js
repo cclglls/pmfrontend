@@ -154,7 +154,7 @@ async function datademoday() {
 
     /* create one project */
     var body = {
-      name: 'P.M. Application',
+      name: 'Project Management',
       description: 'Project Management Application',
       dtdeb: '2019-12-01',
       duedate: '2019-12-20',
@@ -178,91 +178,105 @@ async function datademoday() {
         name: 'Study - Requirement',
         dtdeb: '2019-12-01',
         duedate: '2019-12-06',
-
+        dtclosure: '2019-12-06',
         idassignee: userId0
       },
       {
         name: 'Design - Mockup',
         dtdeb: '2019-12-01',
         duedate: '2019-12-06',
+        dtclosure: '2019-12-06',
         idassignee: userId0
       },
       {
         name: 'Design - MCD',
         dtdeb: '2019-12-01',
         duedate: '2019-12-06',
+        dtclosure: '2019-12-06',
         idassignee: userId0
       },
       {
         name: 'Dev Back - Routes',
         dtdeb: '2019-12-08',
         duedate: '2019-12-13',
+        dtclosure: '2019-12-13',
         idassignee: userId0
       },
       {
         name: 'Dev Front - Component Login',
         dtdeb: '2019-12-08',
-        duedate: '2019-12-19',
+        duedate: '2019-12-13',
+        dtclosure: '2019-12-13',
         idassignee: userId1
       },
       {
         name: 'Dev Front - Component Navigation',
         dtdeb: '2019-12-08',
         duedate: '2019-12-13',
+        dtclosure: '2019-12-13',
         idassignee: userId0
       },
       {
         name: 'Dev Front - Component List',
         dtdeb: '2019-12-08',
         duedate: '2019-12-13',
+        dtclosure: '2019-12-13',
         idassignee: userId0
       },
       {
-        name: 'Dev Front - Component Drag & Drop',
+        name: 'Dev Front - Feature Drag & Drop',
         dtdeb: '2019-12-08',
         duedate: '2019-12-13',
+        dtclosure: '2019-12-13',
         idassignee: userId1
       },
       {
         name: 'Dev Front - Component Calendar',
         dtdeb: '2019-12-08',
         duedate: '2019-12-19',
+        dtclosure: undefined,
         idassignee: userId0
       },
       {
         name: 'Dev Front - Component Conversation',
         dtdeb: '2019-12-08',
         duedate: '2019-12-19',
+        dtclosure: undefined,
         idassignee: userId0
       },
       {
         name: 'Dev Front - Component Progress',
         dtdeb: '2019-12-08',
         duedate: '2019-12-19',
+        dtclosure: undefined,
         idassignee: userId0
       },
       {
         name: 'Dev Front - Modal Project',
         dtdeb: '2019-12-08',
         duedate: '2019-12-13',
+        dtclosure: '2019-12-13',
         idassignee: userId1
       },
       {
         name: 'Dev Front - Modal Task',
         dtdeb: '2019-12-08',
         duedate: '2019-12-13',
+        dtclosure: '2019-12-13',
         idassignee: userId1
       },
       {
         name: 'Dev Front - Modal Conversation',
         dtdeb: '2019-12-08',
         duedate: '2019-12-13',
+        dtclosure: '2019-12-13',
         idassignee: userId1
       },
       {
         name: 'Dev Front - Modal Status',
         dtdeb: '2019-12-08',
         duedate: '2019-12-13',
+        dtclosure: '2019-12-13',
         idassignee: userId1
       }
     ];
@@ -273,6 +287,7 @@ async function datademoday() {
         description: task.name,
         dtdeb: task.dtdeb,
         duedate: task.duedate,
+        dtclosure: task.dtclosure,
         idassignee: task.idassignee,
         idproject: project._id,
         iduser: userId0
@@ -391,7 +406,8 @@ class Nav extends Component {
   componentDidMount() {
     //console.log('Nav - componentDidMount');
 
-    datatest();
+    //datatest();
+    datademoday();
 
     fetch(`http://localhost:3000/users/`)
       .then(response => response.json())

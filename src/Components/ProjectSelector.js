@@ -40,6 +40,19 @@ class ProjectSelector extends React.Component {
     }
   }
 
+  componentDidUpdate(prevProps) {
+    //console.log('ProjectSelector - componentDidUpdate');
+
+    if (
+      prevProps &&
+      this.props.projectsFromStore !== prevProps.projectsFromStore
+    ) {
+      this.setState({
+        projects: this.props.projectsFromStore
+      });
+    }
+  }
+
   render() {
     var projects = this.state.projects;
     var optionList = [];

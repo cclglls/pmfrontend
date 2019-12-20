@@ -73,12 +73,6 @@ class SearchFrame extends React.Component {
         title: 'Name',
         dataIndex: 'name',
         key: 'name',
-        filters: [
-          { text: '1', value: '1' },
-          { text: '2', value: '2' }
-        ],
-        filteredValue: filteredInfo.name || null,
-        onFilter: (value, record) => record.name.includes(value),
         sorter: (a, b) => a.name.localeCompare(b.name),
         sortOrder: sortedInfo.columnKey === 'name' && sortedInfo.order,
         ellipsis: true
@@ -95,12 +89,6 @@ class SearchFrame extends React.Component {
         title: 'DueDate',
         dataIndex: 'duedate',
         key: 'duedate',
-        filters: [
-          { text: 'Years', value: 'Years' },
-          { text: 'Month', value: 'Month' }
-        ],
-        filteredValue: filteredInfo.duedate || null,
-        onFilter: (value, record) => record.duedate.includes(value),
         sorter: (a, b) => a.duedate.localeCompare(b.duedate),
         sortOrder: sortedInfo.columnKey === 'duedate' && sortedInfo.order,
         ellipsis: true
@@ -109,6 +97,12 @@ class SearchFrame extends React.Component {
         title: 'Completed',
         dataIndex: 'completed',
         key: 'completed',
+        filters: [
+          { text: 'Completed', value: 'true' },
+          { text: 'Incomplete', value: 'false' }
+        ],
+        filteredValue: filteredInfo.completed || null,
+        onFilter: (value, record) => record.completed.includes(value),
         sorter: (a, b) => a.completed.localeCompare(b.completed),
         sortOrder: sortedInfo.columnKey === 'completed' && sortedInfo.order,
         ellipsis: true

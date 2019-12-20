@@ -6,6 +6,7 @@ import StatusSelector from './StatusSelector';
 import Conversation from './Conversation';
 import ProjectSelector from './ProjectSelector';
 
+
 var imgSrc = "/images/arrow.png"
 
 class NewStatus extends React.PureComponent {
@@ -23,7 +24,7 @@ class NewStatus extends React.PureComponent {
   // switch button
   onChange = checked => {
     this.setState({
-      checked: !checked
+      checked: checked
     });
   };
 
@@ -130,11 +131,21 @@ class NewStatus extends React.PureComponent {
   };
 
   title = [
+<<<<<<< HEAD
     <div style={{display: 'flex', flexDirection: 'row',alignItems: 'center'}}>
       <img src={imgSrc} width="20" height="20" alt="status"/>
       <p style={{margin: 10}}>Status</p>
     </div>
    ]
+=======
+    <div
+      style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}
+    >
+      <img src={imgSrc} width='20' height='20' alt='status' />
+      <p style={{ margin: 10 }}>Status</p>
+    </div>
+  ];
+>>>>>>> cdea5d464f57451177a8b8b3ddab493ad54add74
 
   render() {
     const { visible } = this.state;
