@@ -7,6 +7,8 @@ import UpdateConv from './UpdateConv';
 var functions = require('../javascripts/functions');
 var retrieveidproject = functions.retrieveidproject;
 
+var imgSrc = "/images/chat.png"
+
 class Conversations extends React.PureComponent {
   constructor() {
     super();
@@ -29,6 +31,17 @@ class Conversations extends React.PureComponent {
 
   handleConversation = value => {};
 
+  handleName = (idconversation, name) => {
+    /* A ecrire */
+    var newconversations = this.state.conversations.map(conversation => {
+      if (conversation._id === idconversation) {
+        conversation.name = name;
+      }
+      return conversation;
+    });
+    this.setState({ conversations: newconversations });
+  };
+
   componentDidMount() {
     //console.log('Conversation - componentDidMount');
     this.refreshConversation();
@@ -39,20 +52,33 @@ class Conversations extends React.PureComponent {
     this.refreshConversation();
   }
 
+ 
+
   render() {
     var conversationList = [];
+    var title = [];
 
     for (var i = 0; i < this.state.conversations.length; i++) {
       var conversation = this.state.conversations[i];
 
+      title = [
+        <div style={{display: 'flex', flexDirection: 'row',alignItems: 'center'}}>
+          <img src={imgSrc} width="20" height="20" alt="status"/>
+          <p style={{margin: 10}}>{conversation.name}</p>
+        </div>
+       ]
+
       conversationList.push(
         <div key={i} style={{ background: '#ECECEC', padding: '30px' }}>
           <Card
-            title={conversation.name}
+            title={title}
             bordered={false}
             style={{ width: 600 }}
           >
-            <UpdateConv idconversation={conversation._id} />
+            <UpdateConv
+              handleClickParent={this.handleName}
+              idconversation={conversation._id}
+            />
             <Conversation
               idconversation={conversation._id}
               savecommentsInDb='true'

@@ -6,21 +6,24 @@ import StatusSelector from './StatusSelector';
 import Conversation from './Conversation';
 import ProjectSelector from './ProjectSelector';
 
+var imgSrc = '/images/arrow.png';
+
 class NewStatus extends React.PureComponent {
   state = {
     visible: false,
-    idconversation: undefined,
+    idconversation: '0',
     comments: [],
     checked: true,
     status: '',
     project: '',
-    idproject: undefined
+    idproject: undefined,
+    error: ''
   };
 
   // switch button
   onChange = checked => {
     this.setState({
-      checked: !checked
+      checked: checked
     });
   };
 
@@ -28,12 +31,13 @@ class NewStatus extends React.PureComponent {
   showModal = () => {
     this.setState({
       visible: true,
-      idconversation: undefined,
+      idconversation: '0',
       comments: [],
       checked: true,
       status: '',
       project: '',
-      idproject: undefined
+      idproject: undefined,
+      error: ''
     });
   };
 
@@ -125,6 +129,15 @@ class NewStatus extends React.PureComponent {
     if (error !== this.state.error) this.setState({ error });
   };
 
+  title = [
+    <div
+      style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}
+    >
+      <img src={imgSrc} width='20' height='20' alt='status' />
+      <p style={{ margin: 10 }}>Status</p>
+    </div>
+  ];
+
   render() {
     const { visible } = this.state;
 
@@ -137,7 +150,7 @@ class NewStatus extends React.PureComponent {
           Status
         </span>
         <Modal
-          title='Status'
+          title={this.title}
           visible={visible}
           onCancel={this.handleCancel}
           footer={[
@@ -184,7 +197,7 @@ class NewStatus extends React.PureComponent {
           <div className='Input'>
             <p
               style={{
-                marginTop: '1.25em',
+                marginTop: '0px',
                 marginBottom: '0px',
                 color: '#FF524F'
               }}

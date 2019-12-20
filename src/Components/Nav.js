@@ -134,6 +134,202 @@ async function datatest() {
   }
 }
 
+async function datademoday() {
+  //console.log(' **** datademoday deb ******');
+  try {
+    var response = await fetch(`http://localhost:3000/users`);
+    var data = await response.json();
+    var user = data.user;
+    //console.log('user', user[0]);
+
+    if (user.length < 2) return;
+
+    var userId0 = user[0]._id;
+    var userId1 = user[1]._id;
+
+    response = await fetch(`http://localhost:3000/projects`);
+    data = await response.json();
+    //console.log('*****data projects******', data);
+    if (data.project.length !== 0) return true;
+
+    /* create one project */
+    var body = {
+      name: 'Project Management',
+      description: 'Project Management Application',
+      dtdeb: '2019-12-01',
+      duedate: '2019-12-20',
+      idowner: userId0,
+      iduser: userId0
+    };
+
+    response = await fetch('http://localhost:3000/projects/project', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+
+    data = await response.json();
+    console.log('***** data project ******', data);
+    var project = data.project;
+
+    /* create tasks linked to the project */
+    var tasks = [
+      {
+        name: 'Study - Requirement',
+        dtdeb: '2019-12-01',
+        duedate: '2019-12-06',
+        dtclosure: '2019-12-06',
+        idassignee: userId0
+      },
+      {
+        name: 'Design - Mockup',
+        dtdeb: '2019-12-01',
+        duedate: '2019-12-06',
+        dtclosure: '2019-12-06',
+        idassignee: userId0
+      },
+      {
+        name: 'Design - MCD',
+        dtdeb: '2019-12-01',
+        duedate: '2019-12-06',
+        dtclosure: '2019-12-06',
+        idassignee: userId0
+      },
+      {
+        name: 'Dev Back - Routes',
+        dtdeb: '2019-12-08',
+        duedate: '2019-12-13',
+        dtclosure: '2019-12-13',
+        idassignee: userId0
+      },
+      {
+        name: 'Dev Front - Component Login',
+        dtdeb: '2019-12-08',
+        duedate: '2019-12-13',
+        dtclosure: '2019-12-13',
+        idassignee: userId1
+      },
+      {
+        name: 'Dev Front - Component Navigation',
+        dtdeb: '2019-12-08',
+        duedate: '2019-12-13',
+        dtclosure: '2019-12-13',
+        idassignee: userId0
+      },
+      {
+        name: 'Dev Front - Component List',
+        dtdeb: '2019-12-08',
+        duedate: '2019-12-13',
+        dtclosure: '2019-12-13',
+        idassignee: userId0
+      },
+      {
+        name: 'Dev Front - Feature Drag & Drop',
+        dtdeb: '2019-12-08',
+        duedate: '2019-12-13',
+        dtclosure: '2019-12-13',
+        idassignee: userId1
+      },
+      {
+        name: 'Dev Front - Component Calendar',
+        dtdeb: '2019-12-08',
+        duedate: '2019-12-19',
+        dtclosure: undefined,
+        idassignee: userId0
+      },
+      {
+        name: 'Dev Front - Component Conversation',
+        dtdeb: '2019-12-08',
+        duedate: '2019-12-19',
+        dtclosure: undefined,
+        idassignee: userId0
+      },
+      {
+        name: 'Dev Front - Component Progress',
+        dtdeb: '2019-12-08',
+        duedate: '2019-12-19',
+        dtclosure: undefined,
+        idassignee: userId0
+      },
+      {
+        name: 'Dev Front - Modal Project',
+        dtdeb: '2019-12-08',
+        duedate: '2019-12-13',
+        dtclosure: '2019-12-13',
+        idassignee: userId1
+      },
+      {
+        name: 'Dev Front - Modal Task',
+        dtdeb: '2019-12-08',
+        duedate: '2019-12-13',
+        dtclosure: '2019-12-13',
+        idassignee: userId1
+      },
+      {
+        name: 'Dev Front - Modal Conversation',
+        dtdeb: '2019-12-08',
+        duedate: '2019-12-13',
+        dtclosure: '2019-12-13',
+        idassignee: userId1
+      },
+      {
+        name: 'Dev Front - Modal Status',
+        dtdeb: '2019-12-08',
+        duedate: '2019-12-13',
+        dtclosure: '2019-12-13',
+        idassignee: userId1
+      }
+    ];
+    for (var i = 1; i < tasks.length; i++) {
+      var task = tasks[i];
+      body = {
+        name: task.name,
+        description: task.name,
+        dtdeb: task.dtdeb,
+        duedate: task.duedate,
+        dtclosure: task.dtclosure,
+        idassignee: task.idassignee,
+        idproject: project._id,
+        iduser: userId0
+      };
+
+      response = await fetch('http://localhost:3000/tasks/task', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+
+      data = await response.json();
+      console.log('***** data task ******', data);
+    }
+
+    /* Create conversations on the project */
+    var z = 'Train for Demo day on Thursday 2019-12-19';
+    body = {
+      name: 'Prepare Demo Day',
+      type: 'conversation',
+      idproject: project._id,
+      comment: [{ _id: '0', comment: z }],
+      iduser: userId0
+    };
+
+    response = await fetch('http://localhost:3000/conversations/conversation', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+
+    data = await response.json();
+    console.log('***** data conversation ******', data);
+
+    console.log(' **** datademoday fin ******');
+    return { res: true, msg: 'BD created' };
+  } catch (error) {
+    console.log(error);
+    return { res: false, msg: error };
+  }
+}
+
 class Nav extends Component {
   constructor() {
     super();
@@ -146,6 +342,7 @@ class Nav extends Component {
   }
 
   onCollapse = collapsed => {
+    console.log('onCollapse');
     this.setState({ collapsed });
   };
 
@@ -209,7 +406,8 @@ class Nav extends Component {
   componentDidMount() {
     //console.log('Nav - componentDidMount');
 
-    datatest();
+    //datatest();
+    datademoday();
 
     fetch(`http://localhost:3000/users/`)
       .then(response => response.json())
@@ -241,7 +439,7 @@ class Nav extends Component {
         <Menu.Item key={projects[i]._id}>
           <Link
             onClick={this.onClick}
-            id={`Project ${projects[i]._id}`}
+            id={`Project-${projects[i]._id}`}
             to={`/HomePage/List/${projects[i]._id}`}
           >
             {projects[i].name}
@@ -361,6 +559,7 @@ class Nav extends Component {
                   </Link>
                 </Menu.Item>
                 <SubMenu
+                  id='Project'
                   key='sub1'
                   title={
                     <span>

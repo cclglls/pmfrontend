@@ -62,38 +62,56 @@ class Conversation extends React.PureComponent {
     });
 
     setTimeout(() => {
+      var author;
+      if (this.props.userFromStore) author = this.props.userFromStore.initials;
+
+      var comment = this.state.value;
+
+      var comments = [
+        {
+          author: author,
+          avatar:
+            'https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png',
+          content: <p>{comment}</p>,
+          datetime: moment().fromNow(),
+          idcomment: '0',
+          comment: comment
+        },
+        ...this.state.comments
+      ];
+
+      /*
       this.setState({
         submitting: false,
-        value: '',
-        comments: [
-          {
-            author: this.props.userFromStore.initials,
-            avatar:
-              'https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png',
-            content: <p>{this.state.value}</p>,
-            datetime: moment().fromNow(),
-            idcomment: '0',
-            comment: this.state.value
-          },
-          ...this.state.comments
-        ]
+        //value: '',
+        comments: comments
       });
-      var comments = [];
+      */
 
-      if (this.state.comments) {
-        for (var i = 0; i < this.state.comments.length; i++) {
+      var commentsDb = [];
+
+      if (comments) {
+        for (var i = 0; i < comments.length; i++) {
           var _id = '0';
-          if (this.state.comments[i].idcomment)
-            _id = this.state.comments[i].idcomment;
-          var comment = this.state.comments[i].comment;
-          comments.push({
+          if (comments[i].idcomment) _id = comments[i].idcomment;
+          comment = comments[i].comment;
+          commentsDb.push({
             _id,
             comment
           });
         }
       }
-      this.setState({ commentsForDb: comments });
-      this.props.handleClickParent(comments);
+
+      //console.log('set timeout', comment, comments, commentsDb);
+
+      this.setState({
+        submitting: false,
+        value: '',
+        comments,
+        commentsForDb: commentsDb
+      });
+
+      this.props.handleClickParent(commentsDb);
     }, 500);
   };
 
@@ -111,11 +129,20 @@ class Conversation extends React.PureComponent {
       this.state.idconversation
     );
     */
-    if (this.props.idconversation !== this.state.idconversation) {
+
+    if (
+      this.props.idconversation !== this.state.idconversation ||
+      (this.props.idconversation === '0' &&
+        this.props.comments &&
+        this.props.comments.length !== this.state.comments.length)
+    ) {
       var comments = [];
       if (this.props.comments)
         for (var i = 0; i < this.props.comments.length; i++) {
           var comment = this.props.comments[i];
+          var datetime;
+          if (comment.event) datetime = comment.event[0].dtevent;
+
           var author;
           if (this.props.userFromStore)
             author = this.props.userFromStore.initials;
@@ -124,7 +151,7 @@ class Conversation extends React.PureComponent {
             avatar:
               'https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png',
             content: <p>{comment.comment}</p>,
-            datetime: moment(comment.event[0].dtevent).fromNow(),
+            datetime: moment(datetime).fromNow(),
             idcomment: comment._id,
             comment: comment.comment
           });
@@ -133,7 +160,8 @@ class Conversation extends React.PureComponent {
       this.setState({
         idconversation: this.props.idconversation,
         comments,
-        commentsForDb: this.props.comments
+        commentsForDb: this.props.comments,
+        value: ''
       });
     }
   };
@@ -150,11 +178,14 @@ class Conversation extends React.PureComponent {
 
   async componentWillUnmount() {
     /* Save Conversation in DB */
-    /*console.log(
+    /*
+    console.log(
       'Conversations - componentWillUnmount',
       this.props.idconversation,
       this.state
-    );*/
+    );
+    */
+
     var comments;
 
     if (
