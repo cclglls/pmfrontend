@@ -149,7 +149,7 @@ class Conversation extends React.PureComponent {
           comments.push({
             author: author,
             avatar:
-              'https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png',
+              "/images/avatar-bon.png",
             content: <p>{comment.comment}</p>,
             datetime: moment(datetime).fromNow(),
             idcomment: comment._id,
@@ -226,7 +226,7 @@ class Conversation extends React.PureComponent {
         <Comment
           avatar={
             <Avatar
-              src='https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png'
+              src="/images/avatar-bon.png"
               alt='avatar'
             />
           }

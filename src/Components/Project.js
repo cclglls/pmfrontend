@@ -14,6 +14,8 @@ var formatDate = functions.formatDate;
 
 const { TextArea } = Input;
 
+var imgSrc = "/images/project.png"
+
 class Project extends React.PureComponent {
   constructor() {
     super();
@@ -173,6 +175,14 @@ class Project extends React.PureComponent {
     if (error !== this.state.error) this.setState({ error });
   };
 
+
+
+   title = [
+    <div style={{display: 'flex', flexDirection: 'row',alignItems: 'center'}}><img src={imgSrc} width="20" height="20" alt="project"/>
+    <p style={{margin: 10}}>Project</p></div>
+   ]
+   
+
   render() {
     //console.log('from Project render : contenu state -->', this.state);
 
@@ -209,7 +219,7 @@ class Project extends React.PureComponent {
           </div>
         )}
         <Modal
-          title='Project'
+          title={this.title}
           visible={this.state.visible}
           onOk={this.handleOk}
           onCancel={this.handleCancel}
