@@ -6,6 +6,8 @@ import StatusSelector from './StatusSelector';
 import Conversation from './Conversation';
 import ProjectSelector from './ProjectSelector';
 
+var imgSrc = '/images/arrow.png';
+
 class NewStatus extends React.PureComponent {
   state = {
     visible: false,
@@ -21,7 +23,7 @@ class NewStatus extends React.PureComponent {
   // switch button
   onChange = checked => {
     this.setState({
-      checked: !checked
+      checked: checked
     });
   };
 
@@ -127,6 +129,15 @@ class NewStatus extends React.PureComponent {
     if (error !== this.state.error) this.setState({ error });
   };
 
+  title = [
+    <div
+      style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}
+    >
+      <img src={imgSrc} width='20' height='20' alt='status' />
+      <p style={{ margin: 10 }}>Status</p>
+    </div>
+  ];
+
   render() {
     const { visible } = this.state;
 
@@ -139,7 +150,7 @@ class NewStatus extends React.PureComponent {
           Status
         </span>
         <Modal
-          title='Status'
+          title={this.title}
           visible={visible}
           onCancel={this.handleCancel}
           footer={[

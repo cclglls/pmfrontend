@@ -7,6 +7,8 @@ import { Modal, Button, Input, Divider } from 'antd';
 
 import Conversation from './Conversation';
 
+var imgSrc = "/images/chat.png"
+
 class NewConversation extends React.Component {
   // Traitement pour la modal
   state = {
@@ -118,6 +120,11 @@ class NewConversation extends React.Component {
     if (error !== this.state.error) this.setState({ error });
   };
 
+   title = [
+    <div style={{display: 'flex', flexDirection: 'row',alignItems: 'center'}}><img src={imgSrc} width="20" height="20" alt="conv"/>
+    <p style={{margin: 10}}>Conversation</p></div>
+   ]
+
   render() {
     const { visible } = this.state;
 
@@ -125,6 +132,8 @@ class NewConversation extends React.Component {
     if (this.state.error.indexOf('Name') >= 0 && this.state.name === '') {
       stylename.borderColor = '#FF524F';
     }
+
+  
 
     return (
       <div>
@@ -135,7 +144,7 @@ class NewConversation extends React.Component {
           Conversation
         </span>
         <Modal
-          title='Conversation'
+          title={this.title}
           visible={visible}
           onOk={this.handleOk}
           onCancel={this.handleCancel}

@@ -3,6 +3,8 @@ import '../App.css';
 
 import { Modal, Button, Input } from 'antd';
 
+var imgSrc = "/images/chat.png"
+
 class UpdateConv extends React.PureComponent {
   constructor() {
     super();
@@ -104,12 +106,19 @@ class UpdateConv extends React.PureComponent {
       stylename.borderColor = '#FF524F';
     }
 
+    var title = [
+      <div style={{display: 'flex', flexDirection: 'row',alignItems: 'center'}}>
+        <img src={imgSrc} width="20" height="20" alt="status"/>
+        <p style={{margin: 10}}>Conversation</p>
+      </div>
+     ]
+
     return (
       <div style={{ textAlign: 'right' }}>
         <Button icon='export' size='small' onClick={this.showModal} />
 
         <Modal
-          title='Conversation'
+          title={title}
           visible={this.state.visible}
           onOk={this.handleOk}
           onCancel={this.handleCancel}

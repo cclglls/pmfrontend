@@ -16,7 +16,11 @@ var formatDate = functions.formatDate;
 var retrievetaskList = functions.retrievetaskList;
 var retrieveuser = functions.retrieveuser;
 
+
+
 const { TextArea } = Input;
+
+var imgSrc = "/images/list.png"
 
 class NewTask extends React.PureComponent {
   constructor() {
@@ -34,7 +38,7 @@ class NewTask extends React.PureComponent {
       comments: [],
       completed: false,
       error: '',
-      visible: false
+      visible: false,   
     };
   }
 
@@ -255,8 +259,15 @@ class NewTask extends React.PureComponent {
     this.refreshTask();
   }
 
+
+
   render() {
     //console.log('New task', this.state.comments);
+    var title = [
+      <div style={{display: 'flex', flexDirection: 'row',alignItems: 'center'}}><img src={imgSrc} width="20" height="20" alt="task"/>
+      <p style={{margin: 10}}>Task</p></div>
+     ]
+  
 
     const { visible } = this.state;
     var timelineList = [];
@@ -279,6 +290,8 @@ class NewTask extends React.PureComponent {
         );
       }
     }
+
+
 
     var stylename = { marginBottom: '1.25em', width: '80%' };
     if (this.state.error.indexOf('Name') >= 0 && this.state.name === '') {
@@ -307,7 +320,7 @@ class NewTask extends React.PureComponent {
         )}
         <Modal
           visible={visible}
-          title='Task'
+          title={title}
           width='700px'
           onCancel={this.handleCancel}
           footer={[
