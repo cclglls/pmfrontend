@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import './App.css';
 import Login from './Login';
+//import Login from './Login_gilles';
 import HomePage from './Components/HomePage';
 
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
@@ -21,8 +22,8 @@ class App extends Component {
         <Router>
           <div className='App'>
             <Switch>
-              <Route path='/' exact component={Login} />
-              <Route path='/HomePage' component={HomePage} />
+              <Route path='/' exact render={props => <Login />} />
+              <Route path='/HomePage' render={props => <HomePage />} />
             </Switch>
           </div>
         </Router>
@@ -30,5 +31,8 @@ class App extends Component {
     );
   }
 }
+
+//<Route path='/' exact component={Login} />
+//<Route path='/HomePage' component={HomePage} />
 
 export default App;

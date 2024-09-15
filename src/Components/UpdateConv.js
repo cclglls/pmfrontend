@@ -3,6 +3,8 @@ import '../App.css';
 
 import { Modal, Button, Input } from 'antd';
 
+var imgSrc = "/images/chat.png"
+
 class UpdateConv extends React.PureComponent {
   constructor() {
     super();
@@ -59,6 +61,7 @@ class UpdateConv extends React.PureComponent {
     }
 
     this.setState({ visible: false });
+    this.props.handleClickParent(this.state.idconversation, this.state.name);
   };
 
   handleCancel = () => {
@@ -75,12 +78,6 @@ class UpdateConv extends React.PureComponent {
       )
         .then(response => response.json())
         .then(data => {
-          console.log(
-            'fetch',
-            this.props.idconversation,
-            data,
-            data.conversation[0].name
-          );
           this.setState({
             name: data.conversation[0].name,
             idconversation: data.conversation[0]._id
@@ -102,19 +99,26 @@ class UpdateConv extends React.PureComponent {
   };
 
   render() {
-    console.log('from UpdateConv render : contenu state -->', this.state);
+    //console.log('from UpdateConv render : contenu state -->', this.state);
 
     var stylename = { marginBottom: '1.25em', width: '80%' };
     if (this.state.error.indexOf('Name') >= 0 && this.state.name === '') {
       stylename.borderColor = '#FF524F';
     }
 
+    var title = [
+      <div style={{display: 'flex', flexDirection: 'row',alignItems: 'center'}}>
+        <img src={imgSrc} width="20" height="20" alt="status"/>
+        <p style={{margin: 10}}>Conversation</p>
+      </div>
+     ]
+
     return (
-      <div>
-        <Button icon='export' type='link' onClick={this.showModal} />
+      <div style={{ textAlign: 'right' }}>
+        <Button icon='export' size='small' onClick={this.showModal} />
 
         <Modal
-          title='Conversation'
+          title={title}
           visible={this.state.visible}
           onOk={this.handleOk}
           onCancel={this.handleCancel}

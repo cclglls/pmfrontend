@@ -52,9 +52,21 @@ function initializeData(sections) {
       if (task.duedate) duedate = task.duedate;
       var assignee;
       if (task.idassignee) assignee = task.idassignee.initials;
+
+      var content = task.name;
+
+      var project;
+      if (task.idproject) {
+        var array = task.idproject.name.split(' ');
+        var array2 = array.map(word => word.charAt(0).toUpperCase());
+        project = array2.join('.');
+      }
+
+      if (project) content = project + ' - ' + content;
+
       tasks[`tasks-${task._id}`] = {
         id: `tasks-${task._id}`,
-        content: task.name,
+        content,
         assignee,
         duedate,
         idtask: task._id
@@ -175,6 +187,8 @@ class List extends Component {
     var iduser = this.props.match.params.iduser;
     var idproject = this.props.match.params.idproject;
 
+    if (!idproject && iduser === '0') return;
+
     if (!iduser && !idproject) {
       if (user) {
         iduser = user._id;
@@ -192,16 +206,16 @@ class List extends Component {
     );
     */
 
+    if (this.state.iduser !== iduser || this.state.idproject !== idproject) {
+      if (this.state.columns) this.saveSectionsToDb(false);
+    }
+
     if (
       refreshTasks === true ||
       this.state.iduser !== iduser ||
       this.state.idproject !== idproject
     ) {
-      if (this.state.columns) this.saveSectionsToDb(false);
-
-      if (refreshTasks) {
-        this.props.refreshtasks(false);
-      }
+      if (refreshTasks) this.props.refreshtasks(false);
 
       var url;
       if (idproject !== '0')
@@ -259,6 +273,7 @@ class List extends Component {
     })
       .then(response => response.json())
       .then(data => {
+        console.log('NewTask - save sections', data);
         if (dispatch) {
           var finalData = {};
           finalData.tasks = this.state.tasks;

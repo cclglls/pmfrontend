@@ -10,8 +10,11 @@ import Owner from './Owner';
 import { Modal, Button, Input } from 'antd';
 var functions = require('../javascripts/functions');
 var retrieveprojects = functions.retrieveprojects;
+var formatDate = functions.formatDate;
 
 const { TextArea } = Input;
+
+var imgSrc = "/images/project.png"
 
 class Project extends React.PureComponent {
   constructor() {
@@ -68,11 +71,15 @@ class Project extends React.PureComponent {
     var response;
 
     try {
+      var dtdeb;
+      if (!this.props.idproject) {
+        dtdeb = formatDate(new Date());
+      }
       if (!this.props.idproject) {
         response = await fetch(`http://localhost:3000/projects/project`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          body: `name=${this.state.name}&description=${this.state.description}&idowner=${this.state.idowner}&duedate=${this.state.duedate}`
+          body: `name=${this.state.name}&description=${this.state.description}&idowner=${this.state.idowner}&dtdeb=${dtdeb}&duedate=${this.state.duedate}`
         });
       } else {
         response = await fetch(
@@ -168,6 +175,14 @@ class Project extends React.PureComponent {
     if (error !== this.state.error) this.setState({ error });
   };
 
+
+
+   title = [
+    <div style={{display: 'flex', flexDirection: 'row',alignItems: 'center'}}><img src={imgSrc} width="20" height="20" alt="project"/>
+    <p style={{margin: 10}}>Project</p></div>
+   ]
+   
+
   render() {
     //console.log('from Project render : contenu state -->', this.state);
 
@@ -187,7 +202,12 @@ class Project extends React.PureComponent {
     return (
       <div>
         {this.props.idproject ? (
-          <Button icon='export' type='link' onClick={this.showModal} />
+          <Button
+            style={{ marginLeft: '8px' }}
+            icon='export'
+            size='small'
+            onClick={this.showModal}
+          />
         ) : (
           <div>
             <span
@@ -199,7 +219,7 @@ class Project extends React.PureComponent {
           </div>
         )}
         <Modal
-          title='Project'
+          title={this.title}
           visible={this.state.visible}
           onOk={this.handleOk}
           onCancel={this.handleCancel}

@@ -40,12 +40,17 @@ class Task extends React.PureComponent {
   handleClick = async () => {
     //console.log('Task - Click détecté');
 
-    if (!this.state.dtclosure) {
-      var dtclosure = new Date();
+    var dtclosure;
+    if (!this.state.dtclosure) dtclosure = new Date();
+    else dtclosure = null;
+
+    if (this.state.idtask) {
+      var iduser;
+      if (this.props.userFromStore) iduser = this.props.userFromStore._id;
 
       var body = {
         dtclosure,
-        iduser: this.props.userFromStore._id
+        iduser
       };
 
       try {
@@ -61,6 +66,7 @@ class Task extends React.PureComponent {
           );
           console.log('New Task - Save BD', response);
           this.setState({ dtclosure });
+          this.props.refreshtasks(true);
         }
       } catch (error) {
         console.log(error);
@@ -138,6 +144,15 @@ class Task extends React.PureComponent {
   }
 }
 
+function mapDispatchToProps(dispatch) {
+  return {
+    refreshtasks: function(refreshTasks) {
+      //console.log('New task - mapDispatchToProps', refreshTasks);
+      dispatch({ type: 'refreshtasks', refreshTasks });
+    }
+  };
+}
+
 function mapStateToProps(state) {
   //console.log('Task - mapStateToProps : ', state.appli);
 
@@ -147,4 +162,4 @@ function mapStateToProps(state) {
   };
 }
 
-export default connect(mapStateToProps, null)(Task);
+export default connect(mapStateToProps, mapDispatchToProps)(Task);

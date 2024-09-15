@@ -16,7 +16,11 @@ var formatDate = functions.formatDate;
 var retrievetaskList = functions.retrievetaskList;
 var retrieveuser = functions.retrieveuser;
 
+
+
 const { TextArea } = Input;
+
+var imgSrc = "/images/list.png"
 
 class NewTask extends React.PureComponent {
   constructor() {
@@ -30,11 +34,11 @@ class NewTask extends React.PureComponent {
       idowner: '',
       project: '',
       idproject: undefined,
-      idconversation: undefined,
+      idconversation: '0',
       comments: [],
       completed: false,
       error: '',
-      visible: false
+      visible: false,   
     };
   }
 
@@ -49,7 +53,7 @@ class NewTask extends React.PureComponent {
       idowner: '',
       project: '',
       idproject: undefined,
-      idconversation: undefined,
+      idconversation: '0',
       comments: [],
       completed: false,
       error: '',
@@ -121,9 +125,16 @@ class NewTask extends React.PureComponent {
     if (this.props.userFromStore) iduser = this.props.userFromStore._id;
 
     if (idproject) {
+      var dtdeb;
+
+      if (!this.props.idtask) {
+        dtdeb = formatDate(new Date());
+      }
+
       var body = {
         name: this.state.name,
         description: this.state.description,
+        dtdeb,
         duedate: this.state.duedate,
         idassignee: this.state.idowner,
         comment: this.state.comments,
@@ -248,7 +259,16 @@ class NewTask extends React.PureComponent {
     this.refreshTask();
   }
 
+
+
   render() {
+    //console.log('New task', this.state.comments);
+    var title = [
+      <div style={{display: 'flex', flexDirection: 'row',alignItems: 'center'}}><img src={imgSrc} width="20" height="20" alt="task"/>
+      <p style={{margin: 10}}>Task</p></div>
+     ]
+  
+
     const { visible } = this.state;
     var timelineList = [];
     if (this.state.event) {
@@ -270,6 +290,8 @@ class NewTask extends React.PureComponent {
         );
       }
     }
+
+
 
     var stylename = { marginBottom: '1.25em', width: '80%' };
     if (this.state.error.indexOf('Name') >= 0 && this.state.name === '') {
@@ -298,7 +320,7 @@ class NewTask extends React.PureComponent {
         )}
         <Modal
           visible={visible}
-          title='Task'
+          title={title}
           width='700px'
           onCancel={this.handleCancel}
           footer={[
@@ -396,7 +418,7 @@ class NewTask extends React.PureComponent {
           <div className='Input'>
             <p
               style={{
-                marginTop: '1.25em',
+                marginTop: 'Opx',
                 marginBottom: '0px',
                 color: '#FF524F'
               }}

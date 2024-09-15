@@ -26,6 +26,8 @@ const labelFormat = {
   }
 };
 
+var imgSrc = "/images/arrow.png"
+
 class Progress extends Component {
   constructor() {
     super();
@@ -47,6 +49,8 @@ class Progress extends Component {
         });
     }
   }
+
+  
 
   render() {
     var progressList = [];
@@ -70,6 +74,14 @@ class Progress extends Component {
         default:
           break;
       }
+
+      var title = [
+        <div style={{display: 'flex', flexDirection: 'row',justifyContent: 'space-between', alignItems: "center"}}>
+          <img src={imgSrc} width="20" height="20" alt="status"/>
+          <div style={{ color: 'black', padding: 10}}>Status on {dtstatus}</div>
+          <div style={{marginLeft: 250, backgroundColor: colorTitleCard, borderRadius: "10px", padding: 10}}> {status.status}</div>
+        </div>
+      ]
 
       var comments = [];
       var idconversation;
@@ -104,9 +116,9 @@ class Progress extends Component {
       progressList.push(
         <div key={i} style={{ background: '#ECECEC', padding: '30px' }}>
           <Card
-            title={`Status on ${dtstatus} - ${status.status}`}
+            title={title}
             bordered={false}
-            headStyle={{ backgroundColor: colorTitleCard, color: 'white' }}
+            headStyle={{ backgroundColor: 'white', color: 'white' }}
             style={{ width: 600 }}
           >
             <Conversation
@@ -150,6 +162,7 @@ class Progress extends Component {
         </div>
       );
     }
+
     if (progressList.length === 0) {
       if (this.state.idproject)
         progressList.push(<h1 key='0'>No project status available</h1>);
